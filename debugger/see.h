@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SCRIPT_SEE_H
-#define BITCOIN_SCRIPT_SEE_H
+#ifndef AIXCOIN_SCRIPT_SEE_H
+#define AIXCOIN_SCRIPT_SEE_H
 
 #include <script/interpreter.h>
 
@@ -101,4 +101,4 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
 // made public to assist instance.cpp
 bool VerifyTaprootCommitment(const std::vector<unsigned char>& control, const std::vector<unsigned char>& program, const CScript& script, uint256* tapleaf_hash);
 
-#endif // BITCOIN_SCRIPT_SEE_H
+#endif // AIXCOIN_SCRIPT_SEE_H

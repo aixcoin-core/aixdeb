@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SERIALIZE_H
-#define BITCOIN_SERIALIZE_H
+#ifndef AIXCOIN_SERIALIZE_H
+#define AIXCOIN_SERIALIZE_H
 
 #include <compat/endian.h>
 
@@ -1119,4 +1119,4 @@ size_t GetSerializeSizeMany(int nVersion, const T&... t)
     return sc.size();
 }
 
-#endif // BITCOIN_SERIALIZE_H
+#endif // AIXCOIN_SERIALIZE_H

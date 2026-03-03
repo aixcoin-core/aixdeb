@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_DEBUGGER_VERSION_H
-#define BITCOIN_DEBUGGER_VERSION_H
+#ifndef AIXCOIN_DEBUGGER_VERSION_H
+#define AIXCOIN_DEBUGGER_VERSION_H
 
 #include <config/aixcoin-config.h>
 
@@ -16,4 +16,4 @@
 #define _VERSION(maj, min, rev) BTCDEB_STR(maj) "." BTCDEB_STR(min) "." BTCDEB_STR(rev)
 #define VERSION() _VERSION(CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, CLIENT_VERSION_REVISION)
 
-#endif // BITCOIN_DEBUGGER_VERSION_H
+#endif // AIXCOIN_DEBUGGER_VERSION_H

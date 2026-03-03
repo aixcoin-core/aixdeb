@@ -15,8 +15,8 @@ index c295568..8bce8db 100644
 --- a/hash.h
 +++ b/hash.h
 @@ -6,16 +6,18 @@
- #ifndef BITCOIN_HASH_H
- #define BITCOIN_HASH_H
+ #ifndef AIXCOIN_HASH_H
+ #define AIXCOIN_HASH_H
  
 -#include <crypto/common.h>
  #include <crypto/ripemd160.h>
@@ -75,8 +75,8 @@ index ebe040f..9ec79ad 100644
 --- a/policy/policy.h
 +++ b/policy/policy.h
 @@ -6,48 +6,31 @@
- #ifndef BITCOIN_POLICY_POLICY_H
- #define BITCOIN_POLICY_POLICY_H
+ #ifndef AIXCOIN_POLICY_POLICY_H
+ #define AIXCOIN_POLICY_POLICY_H
  
 -#include <consensus/consensus.h>
 -#include <policy/feerate.h>
@@ -192,7 +192,7 @@ index ebe040f..9ec79ad 100644
 -    return GetVirtualTransactionInputSize(tx, 0, 0);
 -}
 -
- #endif // BITCOIN_POLICY_POLICY_H
+ #endif // AIXCOIN_POLICY_POLICY_H
 diff --git a/script/interpreter.cpp b/script/interpreter.cpp
 index 20fae2e..5bad14d 100644
 --- a/script/interpreter.cpp

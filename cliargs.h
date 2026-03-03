@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_CLIARGS_H
-#define BITCOIN_CLIARGS_H
+#ifndef AIXCOIN_CLIARGS_H
+#define AIXCOIN_CLIARGS_H
 
 #include <map>
 #include <vector>
@@ -92,4 +92,4 @@ inline void delimiter_set(const std::string& input, std::set<std::string>& outpu
     }
 }
 
-#endif // BITCOIN_CLIARGS_H
+#endif // AIXCOIN_CLIARGS_H

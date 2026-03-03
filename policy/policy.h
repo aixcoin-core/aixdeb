@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_POLICY_POLICY_H
-#define BITCOIN_POLICY_POLICY_H
+#ifndef AIXCOIN_POLICY_POLICY_H
+#define AIXCOIN_POLICY_POLICY_H
 
 #include <script/interpreter.h>
 
@@ -60,4 +60,4 @@ static constexpr unsigned int STANDARD_SCRIPT_VERIFY_FLAGS{MANDATORY_SCRIPT_VERI
                                                              SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS |
                                                              SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE};
 
-#endif // BITCOIN_POLICY_POLICY_H
+#endif // AIXCOIN_POLICY_POLICY_H

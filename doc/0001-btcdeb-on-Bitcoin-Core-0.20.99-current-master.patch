@@ -28,7 +28,7 @@ diff --git a/Makefile.am b/Makefile.am
 index 3bf16d6..307defd 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -43,6 +43,7 @@ BITCOIN_CORE_H = \
+@@ -43,6 +43,7 @@ AIXCOIN_CORE_H = \
  	bech32.h \
  	compat.h \
  	compat/byteswap.h \
@@ -83,8 +83,8 @@ index 0000000..0877ad4
 +// Distributed under the MIT software license, see the accompanying
 +// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 +
-+#ifndef BITCOIN_COMPAT_CPUID_H
-+#define BITCOIN_COMPAT_CPUID_H
++#ifndef AIXCOIN_COMPAT_CPUID_H
++#define AIXCOIN_COMPAT_CPUID_H
 +
 +#if defined(__x86_64__) || defined(__amd64__) || defined(__i386__)
 +#define HAVE_GETCPUID
@@ -102,7 +102,7 @@ index 0000000..0877ad4
 +}
 +
 +#endif // defined(__x86_64__) || defined(__amd64__) || defined(__i386__)
-+#endif // BITCOIN_COMPAT_CPUID_H
++#endif // AIXCOIN_COMPAT_CPUID_H
 diff --git a/functions.cpp b/functions.cpp
 index a2f2b44..e2a8f00 100644
 --- a/functions.cpp
@@ -204,8 +204,8 @@ index 7180648..ead3a1f 100644
 --- a/hash.h
 +++ b/hash.h
 @@ -6,16 +6,18 @@
- #ifndef BITCOIN_HASH_H
- #define BITCOIN_HASH_H
+ #ifndef AIXCOIN_HASH_H
+ #define AIXCOIN_HASH_H
  
 -#include <crypto/common.h>
  #include <crypto/ripemd160.h>
@@ -295,8 +295,8 @@ index 7f168ee..9b1c0a1 100644
 --- a/policy/policy.h
 +++ b/policy/policy.h
 @@ -6,48 +6,31 @@
- #ifndef BITCOIN_POLICY_POLICY_H
- #define BITCOIN_POLICY_POLICY_H
+ #ifndef AIXCOIN_POLICY_POLICY_H
+ #define AIXCOIN_POLICY_POLICY_H
  
 -#include <consensus/consensus.h>
 -#include <policy/feerate.h>
@@ -414,7 +414,7 @@ index 7f168ee..9b1c0a1 100644
 +/** The maximum number of witness stack items in a standard P2WSH script */
 +static const unsigned int MAX_STANDARD_P2WSH_STACK_ITEMS = 100;
  
- #endif // BITCOIN_POLICY_POLICY_H
+ #endif // AIXCOIN_POLICY_POLICY_H
 diff --git a/pubkey.h b/pubkey.h
 index fcbc7e8..7dbfb37 100644
 --- a/pubkey.h
@@ -2546,7 +2546,7 @@ index eaa0fa9..1252561 100644
 +    return str.size() == strlen(str.c_str());
 +}
 +
- #endif // BITCOIN_UTIL_STRENCODINGS_H
+ #endif // AIXCOIN_UTIL_STRENCODINGS_H
 diff --git a/value.cpp b/value.cpp
 index ae9576a..16d9cf6 100644
 --- a/value.cpp

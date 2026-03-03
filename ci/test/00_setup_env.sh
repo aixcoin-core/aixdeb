@@ -21,7 +21,7 @@ fi
 
 if [ "$ENABLE_DANGEROUS" = "1" ]; then
   echo "Enabling dangerous features"
-  export BITCOIN_CONFIG="--enable-dangerous $BITCOIN_CONFIG"
+  export AIXCOIN_CONFIG="--enable-dangerous $AIXCOIN_CONFIG"
 fi
 
 echo "Fallback to default values in env (if not yet set)"

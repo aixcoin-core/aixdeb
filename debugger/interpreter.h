@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_BTCDEB_INTERPRETER_H
-#define BITCOIN_BTCDEB_INTERPRETER_H
+#ifndef AIXCOIN_BTCDEB_INTERPRETER_H
+#define AIXCOIN_BTCDEB_INTERPRETER_H
 
 #include <debugger/see.h>
 #include <util/strencodings.h> // HexStr
@@ -104,4 +104,4 @@ bool StepScript(InterpreterEnv& env);
 bool ContinueScript(InterpreterEnv& env);
 bool RewindScript(InterpreterEnv& env);
 
-#endif // BITCOIN_BTCDEB_INTERPRETER_H
+#endif // AIXCOIN_BTCDEB_INTERPRETER_H

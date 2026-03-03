@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_HASH_H
-#define BITCOIN_HASH_H
+#ifndef AIXCOIN_HASH_H
+#define AIXCOIN_HASH_H
 
 #include <attributes.h>
 #include <crypto/common.h>
@@ -235,4 +235,4 @@ void BIP32Hash(const ChainCode &chainCode, unsigned int nChild, unsigned char he
  */
 HashWriter TaggedHash(const std::string& tag);
 
-#endif // BITCOIN_HASH_H
+#endif // AIXCOIN_HASH_H

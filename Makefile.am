@@ -7,35 +7,35 @@ DIST_SUBDIRS = secp256k1
 AM_LDFLAGS = $(LIBTOOL_LDFLAGS)
 EXTRA_LIBRARIES =
 
-BITCOIN_INCLUDES=-I$(builddir)
+AIXCOIN_INCLUDES=-I$(builddir)
 
-BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
+AIXCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 
-LIBBITCOIN=libaixcoin.a
+LIBAIXCOIN=libaixcoin.a
 LIBKERL=libkerl.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
-LIBBITCOIN_DEB=libaixcoin_deb.a # aixcoin core functionality (debugger/*)
+LIBAIXCOIN_DEB=libaixcoin_deb.a # aixcoin core functionality (debugger/*)
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
 EXTRA_LIBRARIES += \
-  $(LIBBITCOIN_DEB) \
-  $(LIBBITCOIN) \
+  $(LIBAIXCOIN_DEB) \
+  $(LIBAIXCOIN) \
   $(LIBKERL)
 
 bin_PROGRAMS = btcdeb btcc test-btcdeb tap
 noinst_PROGRAMS =
 
 # debugger #
-LIBBITCOIN_DEB_H = \
+LIBAIXCOIN_DEB_H = \
 	debugger/interpreter.h \
 	debugger/script.h
 
 .PHONY: FORCE check-symbols check-security
 # aixcoin core #
-BITCOIN_CORE_H = \
-	$(LIBBITCOIN_DEB_H) \
+AIXCOIN_CORE_H = \
+	$(LIBAIXCOIN_DEB_H) \
 	arith_uint256.h \
 	attributes.h \
 	base58.h \
@@ -78,17 +78,17 @@ BITCOIN_CORE_H = \
 
 # debugger #
 
-libaixcoin_deb_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libaixcoin_deb_a_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
 libaixcoin_deb_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libaixcoin_deb_a_SOURCES = \
 	debugger/hash.cpp \
 	debugger/interpreter.cpp \
 	debugger/script.cpp \
-	$(BITCOIN_CORE_H)
+	$(AIXCOIN_CORE_H)
 
 # aixcoin: shared between all the tools
 # libaixcoin_a_LIBADD = $(LIBSECP256K1)
-libaixcoin_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libaixcoin_a_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
 libaixcoin_a_CXXFLAGS = $(AM_CXXFLAGS)
 libaixcoin_a_SOURCES = \
 	arith_uint256.cpp \
@@ -112,7 +112,7 @@ libaixcoin_a_SOURCES = \
 	util/spanparsing.cpp \
 	util/strencodings.cpp \
 	value.cpp \
-    $(BITCOIN_CORE_H)
+    $(AIXCOIN_CORE_H)
 
 # kerl library #
 libkerl_a_CPPFLAGS = $(AM_CPPFLAGS) -Ikerl
@@ -132,8 +132,8 @@ btcdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 btcdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
 
 btcdeb_LDADD = \
-	$(LIBBITCOIN_DEB) \
-	$(LIBBITCOIN) \
+	$(LIBAIXCOIN_DEB) \
+	$(LIBAIXCOIN) \
 	$(LIBSECP256K1) \
 	$(LIBKERL)
 
@@ -145,25 +145,25 @@ tap_SOURCES = \
   functions.cpp \
   tap.cpp \
   cliargs.h
-tap_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+tap_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
 tap_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 tap_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
 
 tap_LDADD = \
-  $(LIBBITCOIN_DEB) \
-  $(LIBBITCOIN) \
+  $(LIBAIXCOIN_DEB) \
+  $(LIBAIXCOIN) \
   $(LIBSECP256K1) \
   $(LIBKERL)
 
 # btcc binary #
 btcc_SOURCES = \
 	btcc.cpp
-btcc_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+btcc_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
 btcc_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 btcc_LDADD = \
-	$(LIBBITCOIN_DEB) \
-	$(LIBBITCOIN) \
+	$(LIBAIXCOIN_DEB) \
+	$(LIBAIXCOIN) \
 	$(LIBSECP256K1)
 
 # test-btcdeb binary #
@@ -178,18 +178,18 @@ test_btcdeb_SOURCES = \
 	test/test-btcdeb.cpp \
 	test/utils.cpp \
 	test/value.cpp
-test_btcdeb_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+test_btcdeb_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
 test_btcdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 test_btcdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
 
 test_btcdeb_LDADD = \
-	$(LIBBITCOIN_DEB) \
-	$(LIBBITCOIN) \
+	$(LIBAIXCOIN_DEB) \
+	$(LIBAIXCOIN) \
 	$(LIBKERL) \
 	$(LIBSECP256K1)
 
 clean-local:
-	-rm -f config.h $(LIBBITCOIN) $(LIBKERL) $(LIBSECP256K1)
+	-rm -f config.h $(LIBAIXCOIN) $(LIBKERL) $(LIBSECP256K1)
 
 .rc.o:
 	@test -f $(WINDRES)

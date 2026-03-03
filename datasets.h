@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_DATASETS_H
-#define BITCOIN_DATASETS_H
+#ifndef AIXCOIN_DATASETS_H
+#define AIXCOIN_DATASETS_H
 
 #include <map>
 #include <string>
@@ -75,4 +75,4 @@ inline void process_datasets(std::map<char, std::string>& m, bool verbose) {
     }
 }
 
-#endif // BITCOIN_DATASETS_H
+#endif // AIXCOIN_DATASETS_H
