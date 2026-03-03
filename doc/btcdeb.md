@@ -1,6 +1,6 @@
 # Script debugger
 
-The `btcdeb` command can step through a Bitcoin Script and show stack content and operations on a per op level.
+The `btcdeb` command can step through a Aixcoin Script and show stack content and operations on a per op level.
 ```
 btcdeb> help
 step     Execute one instruction and iterate in the script.

@@ -1,10 +1,10 @@
 # btcdeb
 
-Bitcoin Script debugging utilities.
+Aixcoin Script debugging utilities.
 
-This is a set of tools used to debug or construct scripts for use in Bitcoin.
+This is a set of tools used to debug or construct scripts for use in Aixcoin.
 
-[![Build Status](https://travis-ci.org/bitcoin-core/btcdeb.svg?branch=master)](https://travis-ci.org/bitcoin-core/btcdeb)
+[![Build Status](https://travis-ci.org/aixcoin-core/btcdeb.svg?branch=master)](https://travis-ci.org/aixcoin-core/btcdeb)
 
 ## Preparation
 
@@ -62,7 +62,7 @@ After installing the SDK, compile btcdeb tools with the following commands:
 $ make clean
 $ emconfigure ./configure
 $ emmake make
-$ for i in btcdeb btcc tap; do mv $i $i.bc && emcc -O2 $i.bc libbitcoin.a -o $i.js; done
+$ for i in btcdeb btcc tap; do mv $i $i.bc && emcc -O2 $i.bc libaixcoin.a -o $i.js; done
 ```
 
 and then instead of doing `./btcdeb` you do `node btcdeb.js` (or `mastify.js`, etc).
@@ -73,16 +73,16 @@ Note: most things work, but the console in btcdeb does not. You can work around 
 
 ## Script debugger
 
-The `btcdeb` command can step through a Bitcoin Script and show stack content and operations on a per op level. See [doc/btcdeb.md](doc/btcdeb.md) for details on usage.
+The `btcdeb` command can step through a Aixcoin Script and show stack content and operations on a per op level. See [doc/btcdeb.md](doc/btcdeb.md) for details on usage.
 
 ## Script compiler
 
 The `btcc` command can interpret a script in its human readable form and will
-return a corresponding Bitcoin Script.
+return a corresponding Aixcoin Script.
 
 ```Bash
 $ btcc OP_DUP OP_HASH160 897c81ac37ae36f7bc5b91356cfb0138bfacb3c1 OP_EQUALVERIFY OP_CHECKSIG
 76a914897c81ac37ae36f7bc5b91356cfb0138bfacb3c188ac
 ```
 
-The above is the script pub key for a transaction in Bitcoin in human readable format turned into its hexadecimal representation.
+The above is the script pub key for a transaction in Aixcoin in human readable format turned into its hexadecimal representation.

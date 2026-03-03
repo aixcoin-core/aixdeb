@@ -18,7 +18,7 @@
 
 #include <functions.h>
 
-// #include <config/bitcoin-config.h>
+// #include <config/aixcoin-config.h>
 
 #include <debugger/version.h>
 
@@ -129,7 +129,7 @@ int main(int argc, char* const* argv)
     if (quiet) btc_logf = btc_logf_dummy;
 
     if (ca.m.count('v')) {
-        printf("tap (\"The Bitcoin Debugger Taproot Utility\") " VERSION() "\n");
+        printf("tap (\"The Aixcoin Debugger Taproot Utility\") " VERSION() "\n");
         return 0;
     } else if (ca.m.count('h') || ca.l.size() < 3) {
         fprintf(stderr, "Syntax: %s [-v|--version] [-q|--quiet] [--addrprefix=tb|-ptb] [--tx=<hex>|-x<hex>] [--txin=<hex>|-i<hex>] [--privkey=<key>|-k<key>] [--sig=<hex>|-s<hex>] <internal_pubkey> <script_count> <script1> <script2> ... [<spend index or sig> [<spend arg1> [<spend arg2> [...]]]]\n", argv[0]);
@@ -142,7 +142,7 @@ int main(int argc, char* const* argv)
         return 0;
     }
     btc_logf("tap " VERSION() " -- type `%s -h` for help\n", argv[0]);
-    fprintf(stderr, "WARNING: This is experimental software. Do not use this with real bitcoin, or you will most likely lose them all. You have been w a r n e d.\n");
+    fprintf(stderr, "WARNING: This is experimental software. Do not use this with real aixcoin, or you will most likely lose them all. You have been w a r n e d.\n");
 
     if (!pipe_in) {
         // temporarily defaulting all to ON

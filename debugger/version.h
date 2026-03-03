@@ -1,11 +1,11 @@
-// Copyright (c) 2020-2021 The Bitcoin Core developers
+// Copyright (c) 2020-2021 The Aixcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_DEBUGGER_VERSION_H
 #define BITCOIN_DEBUGGER_VERSION_H
 
-#include <config/bitcoin-config.h>
+#include <config/aixcoin-config.h>
 
 #ifdef BTCDEB_STR
 #error "BTCDEB_STR already defined"

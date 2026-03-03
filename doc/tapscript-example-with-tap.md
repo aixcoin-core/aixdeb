@@ -6,7 +6,7 @@ This is the Tap version, which uses the new command line tool *tap* to do the he
 
 ## Scenario
 
-We will base the approach on a simple [HTLC](https://en.bitcoin.it/wiki/Hash_Time_Locked_Contracts)-like contract between Alice and Bob, kind of like a Lightning channel. In old-style Bitcoin, this might look something like this:
+We will base the approach on a simple [HTLC](https://en.aixcoin.it/wiki/Hash_Time_Locked_Contracts)-like contract between Alice and Bob, kind of like a Lightning channel. In old-style Aixcoin, this might look something like this:
 
 ```
 OP_IF
@@ -34,7 +34,7 @@ Tapscript lets us split the above into any number of script paths. We then put t
 2. OP_SHA256 preimage_hash OP_EQUALVERIFY <pubkey_bob> OP_CHECKSIG
 ```
 
-Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside btcdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real bitcoin; if you're here, you probably know enough to warrant enabling it).
+Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside btcdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real aixcoin; if you're here, you probably know enough to warrant enabling it).
 
 Anyway, you can do that or just use mine (the sha256 of 'alice', 'bob', and 'internal' respectively):
 
@@ -75,7 +75,7 @@ We will do both, in that order.
 ```Bash
 $ tap $pubkey 2 "${script_alice}" "${script_bob}"
 tap 0.4.22 -- type `tap -h` for help
-WARNING: This is experimental software. Do not use this with real bitcoin, or you will most likely lose them all. You have been w a r n e d.
+WARNING: This is experimental software. Do not use this with real aixcoin, or you will most likely lose them all. You have been w a r n e d.
 LOG: sign segwit taproot
 Internal pubkey: f30544d6009c8d8d94f5d030b2e844b1a3ca036255161c479db1cca5b374dd1c
 2 scripts:
@@ -101,7 +101,7 @@ The output is quite verbose right now, but lets go through what's being said her
 * Finally, there's a Bech32m address. This is where we wanna send funds. Let's send 0.001 coins to it.
 
 ```Bash
-$ alias bcli='bitcoin-cli -regtest' # change this to whatever command you use to access bitcoin-cli
+$ alias bcli='aixcoin-cli -regtest' # change this to whatever command you use to access aixcoin-cli
 $ bcli sendtoaddress bcrt1p5kaqsuted66fldx256lh3en4h9z4uttxuagkwepqlqup6hw639gsm28t6c 0.001
 ec409014a3b1e7171cf498726bc7bc8bd249a04b65f30c7b8cb5c3079cf8f271
 $ bcli getrawtransaction ec409014a3b1e7171cf498726bc7bc8bd249a04b65f30c7b8cb5c3079cf8f271 1
@@ -183,7 +183,7 @@ Now we can use the `tap` utility to examine and finish our transaction.
 ```Bash
 $ tap --tx=$tx --txin=$txin $pubkey 2 "${script_alice}" "${script_bob}"
 tap 0.4.22 -- type `tap -h` for help
-WARNING: This is experimental software. Do not use this with real bitcoin, or you will most likely lose them all. You have been w a r n e d.
+WARNING: This is experimental software. Do not use this with real aixcoin, or you will most likely lose them all. You have been w a r n e d.
 LOG: sign segwit taproot
 targeting transaction vin at index #0
 Internal pubkey: f30544d6009c8d8d94f5d030b2e844b1a3ca036255161c479db1cca5b374dd1c
@@ -217,7 +217,7 @@ Resulting transaction: 0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b729
 Worth noting:
 * it confirms that the pubkey matches the scriptPubKey of the input transaction's output. If this check fails, you are probably trying to spend the wrong input transaction, or index.
 * it notes that the sighash is a 'taproot' sighash; if this fails with UNKNOWN sighash, it means tap was not able to determine what kind of spend this was
-* there is a sighash `28e88d1...` expressed in little endian (Bitcoin Core would reverse this value when displaying); having this value means we can use a separate tool (e.g. btcdeb) to generate a signature without trusting the `tap` utility
+* there is a sighash `28e88d1...` expressed in little endian (Aixcoin Core would reverse this value when displaying); having this value means we can use a separate tool (e.g. btcdeb) to generate a signature without trusting the `tap` utility
 * since we did not provide a signature or a private key, `tap` added a placeholder signature to the transaction (0001020304... 64 bytes worth). We would replace that with our actual signature, if we signed this manually.
 
 There are 3 ways to complete this transaction: (1) manually, (2) by providing a signature to `tap`, or (3) by providing the internal private key to `tap`.
@@ -296,7 +296,7 @@ $ bcli decoderawtransaction 0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc7
 
 The `txinwitness` has a single entry, which matches our signature above. That's all you do for Taproot spending (you do not provide the public key; why? because it's already in the input, as we noted earlier)!
 
-We don't want to broadcast this transaction as we still wanna try the tapscript version, but we can ask Bitcoin Core if it *would* accept it using the `testmempoolaccept` RPC command:
+We don't want to broadcast this transaction as we still wanna try the tapscript version, but we can ask Aixcoin Core if it *would* accept it using the `testmempoolaccept` RPC command:
 
 ```Bash
 $ bcli testmempoolaccept '["0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e8346820140742c016b800a80daa3fbc744642189b838e858ea4b63461ec23751457cd2f8d6a9e304e069d07bc60fc351dff7e5599b11309731b4dc5eea4f5fd6560dec0be200000000"]'
@@ -359,7 +359,7 @@ script                                                           |              
 btcdeb>
 ```
 
-Signature verification succeeded. You may want to compare the values to those given by `tap` earlier, such as the sighash (which is here given Bitcoin Core style, i.e. big endian).
+Signature verification succeeded. You may want to compare the values to those given by `tap` earlier, such as the sighash (which is here given Aixcoin Core style, i.e. big endian).
 
 That concludes Taproot spending. Now for the (arguably more fun) Tapscript spending!
 

@@ -34,7 +34,7 @@ index c295568..8bce8db 100644
 +
  typedef uint256 ChainCode;
  
- /** A hasher class for Bitcoin's 256-bit hash (double SHA-256). */
+ /** A hasher class for Aixcoin's 256-bit hash (double SHA-256). */
 @@ -122,6 +124,7 @@ private:
      const int nType;
      const int nVersion;

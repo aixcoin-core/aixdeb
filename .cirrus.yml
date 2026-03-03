@@ -27,7 +27,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
     # Each project has 16 CPU in total, assign 2 to each container, so that 8 tasks run in parallel
     cpu: 2
     memory: 4G  # Set to 8GB to avoid OOM. https://cirrus-ci.org/guide/linux/#linux-containers
-    kvm: true  # Use kvm to avoid spurious CI failures in the default virtualization cluster, see https://github.com/bitcoin/bitcoin/issues/20093
+    kvm: true  # Use kvm to avoid spurious CI failures in the default virtualization cluster, see https://github.com/aixcoin/aixcoin/issues/20093
   ccache_cache:
     folder: "/tmp/ccache_dir"
   depends_built_cache:
@@ -42,7 +42,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
 compute_credits_template: &CREDITS_TEMPLATE
   # https://cirrus-ci.org/pricing/#compute-credits
   # Only use credits for pull requests to the main repo
-  use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'bitcoin-core/btcdeb' && $CIRRUS_PR != ""
+  use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'aixcoin-core/btcdeb' && $CIRRUS_PR != ""
 
 # task:
 #   name: 'ARM [buster]'

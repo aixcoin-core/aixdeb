@@ -155,7 +155,7 @@ struct Value {
         type = T_STRING;
         if (vlen > 1 && v[0] == '[' && v[vlen - 1] == ']') {
             CScript s;
-            // decompile from Bitcoin Script
+            // decompile from Aixcoin Script
             for (auto& it : parse_args(&v[1], vlen - 2)) {
                 it >> s;
             }

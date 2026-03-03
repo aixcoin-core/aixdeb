@@ -1,7 +1,7 @@
 From 713a838ff2584294b39fe88a50c28169753f3de2 Mon Sep 17 00:00:00 2001
 From: Karl-Johan Alm <karljohan-alm@garage.co.jp>
 Date: Mon, 17 Aug 2020 11:58:51 +0900
-Subject: [PATCH] btcdeb on Bitcoin Core 0.20.99 ("current master")
+Subject: [PATCH] btcdeb on Aixcoin Core 0.20.99 ("current master")
 
 ---
  Makefile.am            |    1 +
@@ -79,7 +79,7 @@ index 0000000..0877ad4
 --- /dev/null
 +++ b/compat/cpuid.h
 @@ -0,0 +1,24 @@
-+// Copyright (c) 2017-2019 The Bitcoin Core developers
++// Copyright (c) 2017-2019 The Aixcoin Core developers
 +// Distributed under the MIT software license, see the accompanying
 +// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 +
@@ -223,7 +223,7 @@ index 7180648..ead3a1f 100644
 +
  typedef uint256 ChainCode;
  
- /** A hasher class for Bitcoin's 256-bit hash (double SHA-256). */
+ /** A hasher class for Aixcoin's 256-bit hash (double SHA-256). */
 @@ -103,6 +105,7 @@ private:
      const int nType;
      const int nVersion;

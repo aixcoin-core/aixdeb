@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -ne 2 ]; then
-    echo "syntax: $0 <btcdeb root dir> <bitcoin core root dir>"
+    echo "syntax: $0 <btcdeb root dir> <aixcoin core root dir>"
     exit 1
 fi
 
@@ -19,13 +19,13 @@ if [ ! -e "$bd_src/extras/reset-to-core.sh" ]; then
 fi
 
 if [ ! -e "$bc_src/src/script/interpreter.h" ]; then
-    echo "invalid bitcoin core dir: $bc_src (looked for $bc_src/src/script/interpreter.h, but could not find it)"
+    echo "invalid aixcoin core dir: $bc_src (looked for $bc_src/src/script/interpreter.h, but could not find it)"
     exit 1
 fi
 
 cd "$bd_src"
 
-# bitcoin/src/ -> btcdeb/
+# aixcoin/src/ -> btcdeb/
 
 for i in *.h *.cpp; do
     if [ -e "$bc_src/src/$i" ]; then

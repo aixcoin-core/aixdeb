@@ -6,7 +6,7 @@
 
 #ifdef HAVE_CONFIG_H
 // TODO: fix this weird dependency
-#  include <config/bitcoin-config.h>
+#  include <config/aixcoin-config.h>
 #endif
 
 #include <stdio.h>

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2018-2020 The Bitcoin Core developers
+# Copyright (c) 2018-2020 The Aixcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -35,7 +35,7 @@ if [[ ${USE_MEMORY_SANITIZER} == "true" ]]; then
   # using the Linux getrandom syscall. Avoid using getrandom by undefining
   # HAVE_SYS_GETRANDOM. See https://github.com/google/sanitizers/issues/852 for
   # details.
-  DOCKER_EXEC 'grep -v HAVE_SYS_GETRANDOM src/config/bitcoin-config.h > src/config/bitcoin-config.h.tmp && mv src/config/bitcoin-config.h.tmp src/config/bitcoin-config.h'
+  DOCKER_EXEC 'grep -v HAVE_SYS_GETRANDOM src/config/aixcoin-config.h > src/config/aixcoin-config.h.tmp && mv src/config/aixcoin-config.h.tmp src/config/aixcoin-config.h'
 fi
 
 DOCKER_EXEC make $MAKEJOBS $GOAL || ( echo "Build failure. Verbose build follows." && DOCKER_EXEC make $GOAL V=1 ; false )

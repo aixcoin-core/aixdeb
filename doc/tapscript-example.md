@@ -6,7 +6,7 @@ Note: you should start out at [the tap utility version of this document](tapscri
 
 ## Scenario
 
-We will base the approach on a simple [HTLC](https://en.bitcoin.it/wiki/Hash_Time_Locked_Contracts)-like contract between Alice and Bob, kind of like a Lightning channel. In old-style Bitcoin, this might look something like this:
+We will base the approach on a simple [HTLC](https://en.aixcoin.it/wiki/Hash_Time_Locked_Contracts)-like contract between Alice and Bob, kind of like a Lightning channel. In old-style Aixcoin, this might look something like this:
 
 ```
 OP_IF
@@ -34,7 +34,7 @@ Tapscript lets us split the above into any number of script paths. We then put t
 2. OP_SHA256 preimage_hash OP_EQUALVERIFY <pubkey_bob> OP_CHECKSIG
 ```
 
-Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside btcdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real bitcoin; if you're here, you probably know enough to warrant enabling it).
+Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside btcdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real aixcoin; if you're here, you probably know enough to warrant enabling it).
 
 Anyway, you can do that or just use mine (the sha256 of 'alice', 'bob', and 'internal' respectively):
 
@@ -124,7 +124,7 @@ Warning: be sure to remove the evenness byte from the above! If you do 03f128a8.
 Now send a (small!) amount to this address, and check the transaction. It should say unknown witness for the output.
 
 ```Bash
-$ alias bcli='bitcoin-cli -regtest' # change this to whatever command you use to access bitcoin-cli
+$ alias bcli='aixcoin-cli -regtest' # change this to whatever command you use to access aixcoin-cli
 $ bcli sendtoaddress bcrt1p7y52329xxmse7q9gq9542rldlsntdawaqnvntmz99z224kfcauxqag4w9y 0.0001
 303d28a45ad1234fd8092df147ae52464a4b7de0d343a2d79dc28dd7611dd25a
 # (if you get fee estimation failed errors when sending, do `bcli settxfee 0.00001` and try again)
@@ -322,7 +322,7 @@ script                                                           |              
                                                                  |                                                                 01
 ```
 
-And we're good. If we did `sendrawtransaction` now, the transaction would be accepted and be eventually mined into a block like normal. We don't wanna do that though. We have those two scripts after all, let's not waste that effort! We do want to ask Bitcoin Core about the transaction though. The handy `testmempoolaccept` RPC function lets us do exactly that.
+And we're good. If we did `sendrawtransaction` now, the transaction would be accepted and be eventually mined into a block like normal. We don't wanna do that though. We have those two scripts after all, let's not waste that effort! We do want to ask Aixcoin Core about the transaction though. The handy `testmempoolaccept` RPC function lets us do exactly that.
 
 ```Bash
 $ bcli testmempoolaccept '["020000000001015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b0140b36beb8bf7bac92bd3b457a254476c1cf75059fbabc00eb64ccf4e6b462f41ad1dc24615e699bfa1287b82baffc42263bbefc4e2b6e8fc96e6f1fbe5adafcff100000000"]'

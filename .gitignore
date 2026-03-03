@@ -60,8 +60,8 @@ btcc
 build-aux/depcomp
 config.log
 config.status
-config/bitcoin-config.h
-config/bitcoin-config.h.in
+config/aixcoin-config.h
+config/aixcoin-config.h.in
 *~
 config/stamp-h1
 configure
@@ -93,8 +93,8 @@ config.log
 config.status
 configure
 libtool
-src/config/bitcoin-config.h
-src/config/bitcoin-config.h.in
+src/config/aixcoin-config.h
+src/config/aixcoin-config.h.in
 src/config/stamp-h1
 share/setup.nsi
 share/qt/Info.plist

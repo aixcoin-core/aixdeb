@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2018 The Bitcoin Core developers
+# Copyright (c) 2013-2018 The Aixcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,10 +11,10 @@ BITCOIN_INCLUDES=-I$(builddir)
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 
-LIBBITCOIN=libbitcoin.a
+LIBBITCOIN=libaixcoin.a
 LIBKERL=libkerl.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
-LIBBITCOIN_DEB=libbitcoin_deb.a # bitcoin core functionality (debugger/*)
+LIBBITCOIN_DEB=libaixcoin_deb.a # aixcoin core functionality (debugger/*)
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
@@ -33,7 +33,7 @@ LIBBITCOIN_DEB_H = \
 	debugger/script.h
 
 .PHONY: FORCE check-symbols check-security
-# bitcoin core #
+# aixcoin core #
 BITCOIN_CORE_H = \
 	$(LIBBITCOIN_DEB_H) \
 	arith_uint256.h \
@@ -78,19 +78,19 @@ BITCOIN_CORE_H = \
 
 # debugger #
 
-libbitcoin_deb_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libbitcoin_deb_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libbitcoin_deb_a_SOURCES = \
+libaixcoin_deb_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libaixcoin_deb_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libaixcoin_deb_a_SOURCES = \
 	debugger/hash.cpp \
 	debugger/interpreter.cpp \
 	debugger/script.cpp \
 	$(BITCOIN_CORE_H)
 
-# bitcoin: shared between all the tools
-# libbitcoin_a_LIBADD = $(LIBSECP256K1)
-libbitcoin_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libbitcoin_a_CXXFLAGS = $(AM_CXXFLAGS)
-libbitcoin_a_SOURCES = \
+# aixcoin: shared between all the tools
+# libaixcoin_a_LIBADD = $(LIBSECP256K1)
+libaixcoin_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libaixcoin_a_CXXFLAGS = $(AM_CXXFLAGS)
+libaixcoin_a_SOURCES = \
 	arith_uint256.cpp \
 	base58.cpp \
 	bech32.cpp \

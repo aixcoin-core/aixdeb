@@ -7,10 +7,10 @@ define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_IS_RELEASE, false)
 define(_COPYRIGHT_YEAR, 2023)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Bitcoin Core]])
-AC_INIT([Bitcoin Debugger],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/bitcoin-core/btcdeb/issues],[btcdeb],[https://twitter.com/kallewoof])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Aixcoin Core]])
+AC_INIT([Aixcoin Debugger],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/aixcoin-core/btcdeb/issues],[btcdeb],[https://twitter.com/kallewoof])
 AC_CONFIG_SRCDIR([btcdeb.cpp])
-AC_CONFIG_HEADERS([config/bitcoin-config.h])
+AC_CONFIG_HEADERS([config/aixcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
@@ -246,7 +246,7 @@ AC_C_BIGENDIAN
 dnl Check for readline
 AX_LIB_READLINE
 
-# The following macro will add the necessary defines to bitcoin-config.h, but
+# The following macro will add the necessary defines to aixcoin-config.h, but
 # they also need to be passed down to any subprojects. Pull the results out of
 # the cache and add them to CPPFLAGS.
 AC_SYS_LARGEFILE
@@ -451,8 +451,8 @@ echo "Options used to compile and link:"
 echo "  dangerous     = $enable_dangerous"
 if test x$enable_dangerous != xno; then
   echo "    *NOTE:* If someone gave you a modified version of this code, and you passed in a private key"
-  echo "            with bitcoin in it, they could easily send that key to themselves and steal from you."
-  echo "            Make sure you got this from https://github.com/bitcoin-core/btcdeb or from some other"
+  echo "            with aixcoin in it, they could easily send that key to themselves and steal from you."
+  echo "            Make sure you got this from https://github.com/aixcoin-core/btcdeb or from some other"
   echo "            source that you trust. You should preferably also verify the source code."
 fi
 echo "  target os     = $TARGET_OS"
