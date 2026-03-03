@@ -18,51 +18,51 @@ TaprootCommitmentEnv::TaprootCommitmentEnv(const std::vector<unsigned char>& con
 ,   m_p{uint256(std::vector<unsigned char>(control.begin() + 1, control.begin() + TAPROOT_CONTROL_BASE_SIZE))}
 ,   m_q{uint256(program)}
 ,   m_applied_tweak{false} {
-    btc_taproot_logf("Taproot commitment:\n");
-    btc_taproot_logf("- control  = %s\n", HexStr(control).c_str());
-    btc_taproot_logf("- program  = %s\n", HexStr(program).c_str());
-    btc_taproot_logf("- script   = %s\n", HexStr(script).c_str());
+    aix_taproot_logf("Taproot commitment:\n");
+    aix_taproot_logf("- control  = %s\n", HexStr(control).c_str());
+    aix_taproot_logf("- program  = %s\n", HexStr(program).c_str());
+    aix_taproot_logf("- script   = %s\n", HexStr(script).c_str());
     m_path_len = (control.size() - TAPROOT_CONTROL_BASE_SIZE) / TAPROOT_CONTROL_NODE_SIZE;
-    btc_taproot_logf("- path len = %d\n", m_path_len);
-    btc_taproot_logf("- p        = %s\n", m_p.ToString().c_str());
-    btc_taproot_logf("- q        = %s\n", m_q.ToString().c_str());
+    aix_taproot_logf("- path len = %d\n", m_path_len);
+    aix_taproot_logf("- p        = %s\n", m_p.ToString().c_str());
+    aix_taproot_logf("- q        = %s\n", m_q.ToString().c_str());
     m_k = (HashWriter(HASHER_TAPLEAF) << uint8_t(control[0] & TAPROOT_LEAF_MASK) << script).GetSHA256();
-    btc_taproot_logf("- k        = %s          (tap leaf hash)\n", m_k.ToString().c_str());
+    aix_taproot_logf("- k        = %s          (tap leaf hash)\n", m_k.ToString().c_str());
     m_k_desc = strprintf("TapLeaf(0x%02x || %s)", uint8_t(control[0] & TAPROOT_LEAF_MASK), HexStr(script).c_str());
-    btc_taproot_logf("  (%s)\n", m_k_desc.c_str());
+    aix_taproot_logf("  (%s)\n", m_k_desc.c_str());
     if (m_tapleaf_hash) *m_tapleaf_hash = m_k;
     m_i = 0;
 }
 TaprootCommitmentEnv::State TaprootCommitmentEnv::Iterate() {
-    btc_taproot_logf("- looping over path (0..%d)\n", m_path_len-1);
+    aix_taproot_logf("- looping over path (0..%d)\n", m_path_len-1);
     if (m_i < m_path_len) {
         HashWriter ss_branch = HASHER_TAPBRANCH;
         Span<const unsigned char> node(m_control.data() + TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * m_i, TAPROOT_CONTROL_NODE_SIZE);
         if (std::lexicographical_compare(m_k.begin(), m_k.end(), node.begin(), node.end())) {
-            btc_taproot_logf("  - %d: node = %02x...; taproot control node match -> k first\n", m_i, node[0]);
+            aix_taproot_logf("  - %d: node = %02x...; taproot control node match -> k first\n", m_i, node[0]);
             m_k_desc = strprintf("TapBranch(%s || Span<%d,%zu>=%s)", m_k_desc.c_str(), TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * m_i, TAPROOT_CONTROL_NODE_SIZE, HexStr(node).c_str());
             ss_branch << m_k << node;
         } else {
-            btc_taproot_logf("  - %d: node = %02x...; taproot control node mismatch -> k second\n", m_i, node[0]);
+            aix_taproot_logf("  - %d: node = %02x...; taproot control node mismatch -> k second\n", m_i, node[0]);
             m_k_desc = strprintf("TapBranch(Span<%d,%zu>=%s || %s)", TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * m_i, TAPROOT_CONTROL_NODE_SIZE, HexStr(node).c_str(), m_k_desc.c_str());
             ss_branch << node << m_k;
         }
-        btc_taproot_logf("  (%s)\n", m_k_desc.c_str());
+        aix_taproot_logf("  (%s)\n", m_k_desc.c_str());
         m_k = ss_branch.GetSHA256();
-        btc_taproot_logf("  - %d: k -> %s\n", m_i, m_k.ToString().c_str());
+        aix_taproot_logf("  - %d: k -> %s\n", m_i, m_k.ToString().c_str());
         ++m_i;
         return State::Processing;
     }
     // if (!m_applied_tweak) {
     //     m_k_desc = strprintf("TapTweak(internal_pubkey=%s || %s)", HexStr(MakeSpan(m_p)).c_str(), m_k_desc.c_str());
     //     m_k = (HashWriter(HASHER_TAPTWEAK) << MakeSpan(m_p) << m_k).GetSHA256();
-    //     btc_taproot_logf("- final k  = %s\n", m_k.ToString().c_str());
-    //     btc_taproot_logf("  (%s)\n", m_k_desc.c_str());
+    //     aix_taproot_logf("- final k  = %s\n", m_k.ToString().c_str());
+    //     aix_taproot_logf("  (%s)\n", m_k_desc.c_str());
     //     m_applied_tweak = true;
     //     return State::Tweaked;
     // }
     bool res = m_q.CheckTapTweak(m_p, m_k, m_control[0] & 1); // TODO: verify that CheckPayToContract -> CheckTapTweak
-    btc_taproot_logf("- q.CheckTapTweak(p, k, %d) == %s\n", m_control[0] & 1, res ? "success" : "failure");
+    aix_taproot_logf("- q.CheckTapTweak(p, k, %d) == %s\n", m_control[0] & 1, res ? "success" : "failure");
     return res ? State::Done : State::Failed;
 }
 

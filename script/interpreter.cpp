@@ -241,7 +241,7 @@ static bool EvalChecksigPreTapscript(ScriptExecutionEnvironment& env, const valt
     auto& pretend_valid_map = env.pretend_valid_map;
     auto& pretend_valid_pubkeys = env.pretend_valid_pubkeys;
 
-    btc_logf("Eval Checksig Pre-Tapscript\n");
+    aix_logf("Eval Checksig Pre-Tapscript\n");
     assert(sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0);
 
     // Subset of script starting at the most recent codeseparator
@@ -275,7 +275,7 @@ static bool EvalChecksigPreTapscript(ScriptExecutionEnvironment& env, const valt
 
 static bool EvalChecksigTapscript(const valtype& sig, const valtype& pubkey, ScriptExecutionData& execdata, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* serror, bool& success)
 {
-    btc_logf("Eval Checksig Tapscript\n");
+    aix_logf("Eval Checksig Tapscript\n");
     assert(sigversion == SigVersion::TAPSCRIPT);
 
     /*
@@ -285,24 +285,24 @@ static bool EvalChecksigTapscript(const valtype& sig, const valtype& pubkey, Scr
      *    the script execution fails when using non-empty invalid signature.
      */
     success = !sig.empty();
-    btc_logf("- sig must not be empty: %s\n", success ? "ok" : "it is empty");
+    aix_logf("- sig must not be empty: %s\n", success ? "ok" : "it is empty");
     if (success) {
         // Implement the sigops/witnesssize ratio test.
         // Passing with an upgradable public key version is also counted.
         assert(execdata.m_validation_weight_left_init);
         execdata.m_validation_weight_left -= VALIDATION_WEIGHT_PER_SIGOP_PASSED;
-        btc_logf("- validation weight - %lld -> %lld\n", VALIDATION_WEIGHT_PER_SIGOP_PASSED, execdata.m_validation_weight_left);
+        aix_logf("- validation weight - %lld -> %lld\n", VALIDATION_WEIGHT_PER_SIGOP_PASSED, execdata.m_validation_weight_left);
         if (execdata.m_validation_weight_left < 0) {
             return set_error(serror, SCRIPT_ERR_TAPSCRIPT_VALIDATION_WEIGHT);
         }
     }
     if (pubkey.size() == 0) {
-        btc_logf("- check failed: no pubkeys\n");
+        aix_logf("- check failed: no pubkeys\n");
         return set_error(serror, SCRIPT_ERR_PUBKEYTYPE);
     } else if (pubkey.size() == 32) {
-        btc_logf("- 32 byte pubkey (new type); schnorr sig check\n");
+        aix_logf("- 32 byte pubkey (new type); schnorr sig check\n");
         if (success && !checker.CheckSchnorrSignature(sig, pubkey, sigversion, execdata, serror)) {
-            btc_logf("- schnorr sig check failed\n");
+            aix_logf("- schnorr sig check failed\n");
             return false; // serror is set
         }
     } else {
@@ -311,7 +311,7 @@ static bool EvalChecksigTapscript(const valtype& sig, const valtype& pubkey, Scr
          *  Generally, the new code should not do anything but failing the script execution. To avoid
          *  consensus bugs, it should not modify any existing values (including `success`).
          */
-        btc_logf("- old style pubkey\n");
+        aix_logf("- old style pubkey\n");
         if ((flags & SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE) != 0) {
             return set_error(serror, SCRIPT_ERR_DISCOURAGE_UPGRADABLE_PUBKEYTYPE);
         }
@@ -327,7 +327,7 @@ static bool EvalChecksigTapscript(const valtype& sig, const valtype& pubkey, Scr
  */
 static bool EvalChecksig(ScriptExecutionEnvironment& env, const valtype& sig, const valtype& pubkey, CScript::const_iterator pbegincodehash, CScript::const_iterator pend, ScriptExecutionData& execdata, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* serror, bool& success)
 {
-    btc_taproot_logf("EvalChecksig() sigversion=%d\n", sigversion);
+    aix_taproot_logf("EvalChecksig() sigversion=%d\n", sigversion);
     auto& pretend_valid_map = env.pretend_valid_map;
     auto& pretend_valid_pubkeys = env.pretend_valid_pubkeys;
     std::string sig_str = HexStr(sig);
@@ -344,7 +344,7 @@ static bool EvalChecksig(ScriptExecutionEnvironment& env, const valtype& sig, co
         );
     }
     if (sigversion == SigVersion::TAPROOT) {
-        // btcdeb converts taproot spends into actual scripts, but in reality these are checked earlier
+        // aixdeb converts taproot spends into actual scripts, but in reality these are checked earlier
         success = checker.CheckSchnorrSignature(sig, pubkey, SigVersion::TAPROOT, execdata);
         return success;
     }
@@ -1101,13 +1101,13 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
                 {
                     // OP_CHECKSIGADD is only available in Tapscript
                     if (sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) {
-                        btc_logf("OP_CHECKSIGADD is only available in Tapscript\n");
+                        aix_logf("OP_CHECKSIGADD is only available in Tapscript\n");
                         return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
                     }
 
                     // (sig num pubkey -- num)
                     if (stack.size() < 3) {
-                        btc_logf("stack size too small (expected sig, num, pubkey, but size = %zu)\n", stack.size());
+                        aix_logf("stack size too small (expected sig, num, pubkey, but size = %zu)\n", stack.size());
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
                     }
 
@@ -1128,14 +1128,14 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
                 case OP_CHECKMULTISIGVERIFY:
                 {
                     if (sigversion == SigVersion::TAPSCRIPT) {
-                        btc_logf("CHECKMULTISIG(VERIFY) is disabled for Tapscript\n");
+                        aix_logf("CHECKMULTISIG(VERIFY) is disabled for Tapscript\n");
                         return set_error(serror, SCRIPT_ERR_TAPSCRIPT_CHECKMULTISIG);
                     }
 
                     // ([sig ...] num_of_signatures [pubkey ...] num_of_pubkeys -- bool)
 
                     int i = 1;
-                    btc_sign_logf("stack has %zu entries [require 1]\n", stack.size());
+                    aix_sign_logf("stack has %zu entries [require 1]\n", stack.size());
                     if ((int)stack.size() < i)
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 
@@ -1152,7 +1152,7 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
                     // With SCRIPT_VERIFY_NULLFAIL, this is used for cleanup if operation fails.
                     int ikey2 = nKeysCount + 2;
                     i += nKeysCount;
-                    btc_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
+                    aix_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
                     if ((int)stack.size() < i)
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 
@@ -1161,7 +1161,7 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
                         return set_error(serror, SCRIPT_ERR_SIG_COUNT);
                     int isig = ++i;
                     i += nSigsCount;
-                    btc_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
+                    aix_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
                     if ((int)stack.size() < i)
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 
@@ -1179,36 +1179,36 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
                         }
                     }
 
-                    btc_sign_logf("scriptCode = %s\n", HexStr(scriptCode).c_str());
+                    aix_sign_logf("scriptCode = %s\n", HexStr(scriptCode).c_str());
 
                     bool fSuccess = true;
-                    btc_sign_logf("looping for multisig\n");
+                    aix_sign_logf("looping for multisig\n");
                     while (fSuccess && nSigsCount > 0)
                     {
-                        btc_sign_logf("loop: sigs = %d, keys = %d\n", nSigsCount, nKeysCount);
+                        aix_sign_logf("loop: sigs = %d, keys = %d\n", nSigsCount, nKeysCount);
                         valtype& vchSig    = stacktop(-isig);
                         valtype& vchPubKey = stacktop(-ikey);
                         std::string sig_str = HexStr(vchSig);
                         std::string pub_str = HexStr(vchPubKey);
-                        btc_sign_logf("- got sig %s\n", sig_str.c_str());
-                        btc_sign_logf("- got key %s\n", pub_str.c_str());
+                        aix_sign_logf("- got sig %s\n", sig_str.c_str());
+                        aix_sign_logf("- got key %s\n", pub_str.c_str());
                         bool fOk;
                         if (pretend_valid_pubkeys.count(vchPubKey)) {
                             fOk = pretend_valid_map.count(vchSig) && pretend_valid_map.at(vchSig) == vchPubKey;
-                            if (!fOk) btc_sign_logf("- [mock] wrong pubkey for sig; marking as failed\n");
+                            if (!fOk) aix_sign_logf("- [mock] wrong pubkey for sig; marking as failed\n");
                         } else {
                             // Note how this makes the exact order of pubkey/signature evaluation
                             // distinguishable by CHECKMULTISIG NOT if the STRICTENC flag is set.
                             // See the script_(in)valid tests for details.
                             if (!CheckSignatureEncoding(vchSig, flags, serror) || !CheckPubKeyEncoding(vchPubKey, flags, sigversion, serror)) {
                                 // serror is set
-                                    btc_sign_logf("! CheckSignatureEncoding() or CheckPubKeyEncoding() failed!\n");
+                                    aix_sign_logf("! CheckSignatureEncoding() or CheckPubKeyEncoding() failed!\n");
                                 return false;
                             }
                             // Check signature
                             fOk = checker.CheckECDSASignature(vchSig, vchPubKey, scriptCode, sigversion);
                          }
-                        btc_sign_logf("- sig check %s\n", fOk ? "succeeded" : "failed");
+                        aix_sign_logf("- sig check %s\n", fOk ? "succeeded" : "failed");
                         if (fOk) {
                             isig++;
                             nSigsCount--;
@@ -1223,25 +1223,25 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
                             fSuccess = false;
 
                             // see if remaining sigs would have solved for any of the pubkeys
-                            auto bsl = btc_sign_logf;
-                            auto bsh = btc_sighash_logf;
+                            auto bsl = aix_sign_logf;
+                            auto bsh = aix_sighash_logf;
                             while (nSigsCount > 0) {
                                 valtype& vchSig = stacktop(-isig);
-                                btc_sign_logf = btc_sighash_logf = btc_logf_dummy;
+                                aix_sign_logf = aix_sighash_logf = aix_logf_dummy;
                                 for (int i = starting_key_pos; i < starting_key_pos + total_keys; ++i) {
                                     valtype& vchPubkeyAlt = stacktop(-i);
                                     if (checker.CheckECDSASignature(vchSig, vchPubkeyAlt, scriptCode, sigversion)) {
-                                        btc_logf("!!! note: signature %s is probably in the wrong position: it successfully signs a (previous) pubkey %s\n", HexStr(vchSig).c_str(), HexStr(vchPubkeyAlt).c_str());
+                                        aix_logf("!!! note: signature %s is probably in the wrong position: it successfully signs a (previous) pubkey %s\n", HexStr(vchSig).c_str(), HexStr(vchPubkeyAlt).c_str());
                                     }
                                 }
                                 ++isig;
                                 --nSigsCount;
                             }
-                            btc_sign_logf = bsl;
-                            btc_sighash_logf = bsh;
+                            aix_sign_logf = bsl;
+                            aix_sighash_logf = bsh;
                         }
                     }
-                    btc_sign_logf("loop ended in %s state\n", fSuccess ? "successful" : "failure");
+                    aix_sign_logf("loop ended in %s state\n", fSuccess ? "successful" : "failure");
 
                     // Clean up stack of actual arguments
                     while (i-- > 1) {
@@ -1262,10 +1262,10 @@ bool StepScript(ScriptExecutionEnvironment& env, CScript::const_iterator& pc, CS
                     if (stack.size() < 1)
                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
                     if ((flags & SCRIPT_VERIFY_NULLDUMMY) && stacktop(-1).size()) {
-                        if (btcdeb_verbose) printf(
+                        if (aixdeb_verbose) printf(
                             "\n* * * * * * *\n\n"
 
-                            "Hint: with Segwit activation, the OP_CHECKMULTISIG extra argument must be set to the empty push value (0x). If you are experimenting with older scripts, you may run into a 'Dummy CHECKMULTISIG argument must be zero' error. To move past this, you need to modify the verification flags, disabling the NULLDUMMY flag specifically. I.e. call btcdeb again with -f\"-NULLDUMMY\"\n\n"
+                            "Hint: with Segwit activation, the OP_CHECKMULTISIG extra argument must be set to the empty push value (0x). If you are experimenting with older scripts, you may run into a 'Dummy CHECKMULTISIG argument must be zero' error. To move past this, you need to modify the verification flags, disabling the NULLDUMMY flag specifically. I.e. call aixdeb again with -f\"-NULLDUMMY\"\n\n"
 
                             "* * * * * * *\n\n"
                         ); else printf("Hint: with Segwit activation, the OP_CHECKMULTISIG extra argument must be empty (--verbose for details)\n");
@@ -1356,9 +1356,9 @@ public:
             if (opcode == OP_CODESEPARATOR)
                 nCodeSeparators++;
         }
-        btc_sign_logf(" << scriptCode.size()=%zu - nCodeSeparators=%d\n", scriptCode.size(), nCodeSeparators);
+        aix_sign_logf(" << scriptCode.size()=%zu - nCodeSeparators=%d\n", scriptCode.size(), nCodeSeparators);
         ::WriteCompactSize(s, scriptCode.size() - nCodeSeparators);
-        btc_sign_logf(" << script:"); print_vec(scriptCode, btc_sign_logf); btc_sign_logf("\n");
+        aix_sign_logf(" << script:"); print_vec(scriptCode, aix_sign_logf); aix_sign_logf("\n");
         it = itBegin;
         while (scriptCode.GetOp(it, opcode)) {
             if (opcode == OP_CODESEPARATOR) {
@@ -1375,28 +1375,28 @@ public:
     void SerializeInput(S &s, unsigned int nInput) const {
         // In case of SIGHASH_ANYONECANPAY, only the input being signed is serialized
         if (fAnyoneCanPay) {
-            btc_sign_logf("    (fAnyoneCanPay: nInput = nIn)\n");
+            aix_sign_logf("    (fAnyoneCanPay: nInput = nIn)\n");
             nInput = nIn;
         }
         // Serialize the prevout
-        btc_sign_logf(" << txTo.vin[nInput=%d].prevout = %s\n", nInput, txTo.vin[nInput].prevout.ToString().c_str());
+        aix_sign_logf(" << txTo.vin[nInput=%d].prevout = %s\n", nInput, txTo.vin[nInput].prevout.ToString().c_str());
         ::Serialize(s, txTo.vin[nInput].prevout);
         // Serialize the script
         if (nInput != nIn) {
             // Blank out other inputs' signatures
             ::Serialize(s, CScript());
-            btc_sign_logf(" << [empty script] (reason: nInput != nIn)\n");
+            aix_sign_logf(" << [empty script] (reason: nInput != nIn)\n");
         } else {
-            btc_sign_logf("(SerializeScriptCode)\n");
+            aix_sign_logf("(SerializeScriptCode)\n");
             SerializeScriptCode(s);
         }
         // Serialize the nSequence
         if (nInput != nIn && (fHashSingle || fHashNone)) {
             // let the others update at will
-            btc_sign_logf(" << sequence = 0 (nInput != nIn && (fHashSingle || fHashNone))\n");
+            aix_sign_logf(" << sequence = 0 (nInput != nIn && (fHashSingle || fHashNone))\n");
             ::Serialize(s, (int)0);
         } else {
-            btc_sign_logf(" << txTo.vin[nInput].nSequence = %u [0x%x]\n", txTo.vin[nInput].nSequence, txTo.vin[nInput].nSequence);
+            aix_sign_logf(" << txTo.vin[nInput].nSequence = %u [0x%x]\n", txTo.vin[nInput].nSequence, txTo.vin[nInput].nSequence);
             ::Serialize(s, txTo.vin[nInput].nSequence);
         }
     }
@@ -1435,11 +1435,11 @@ public:
 template <class T>
 uint256 GetPrevoutsSHA256(const T& txTo)
 {
-    btc_sign_logf("- generating prevout hash from %zu ins\n", txTo.vin.size());
+    aix_sign_logf("- generating prevout hash from %zu ins\n", txTo.vin.size());
     HashWriter ss{};
     for (const auto& txin : txTo.vin) {
         ss << txin.prevout;
-        btc_sign_logf("[+] %s\n", txin.prevout.ToString().c_str());
+        aix_sign_logf("[+] %s\n", txin.prevout.ToString().c_str());
     }
     return ss.GetSHA256();
 }
@@ -1572,17 +1572,17 @@ static bool HandleMissingData(MissingDataBehavior mdb)
 template<typename T>
 bool SignatureHashSchnorr(uint256& hash_out, ScriptExecutionData& execdata, const T& tx_to, uint32_t in_pos, uint8_t hash_type, SigVersion sigversion, const PrecomputedTransactionData& cache, MissingDataBehavior mdb)
 {
-    btc_sign_logf("SignatureHashSchnorr(in_pos=%d, hash_type=%02x)\n", in_pos, hash_type);
+    aix_sign_logf("SignatureHashSchnorr(in_pos=%d, hash_type=%02x)\n", in_pos, hash_type);
     uint8_t ext_flag, key_version;
     switch (sigversion) {
     case SigVersion::TAPROOT:
         ext_flag = 0;
-        btc_sign_logf("- taproot sighash\n");
+        aix_sign_logf("- taproot sighash\n");
         // key_version is not used and left uninitialized.
         break;
     case SigVersion::TAPSCRIPT:
         ext_flag = 1;
-        btc_sign_logf("- tapscript sighash\n");
+        aix_sign_logf("- tapscript sighash\n");
         // key_version must be 0 for now, representing the current version of
         // 32-byte public keys in the tapscript signature opcode execution.
         // An upgradable public key version (with a size not 32-byte) may
@@ -1590,51 +1590,51 @@ bool SignatureHashSchnorr(uint256& hash_out, ScriptExecutionData& execdata, cons
         key_version = 0;
         break;
     default:
-        btc_sign_logf("- UNKNOWN sighash\n");
+        aix_sign_logf("- UNKNOWN sighash\n");
         assert(false);
     }
     assert(in_pos < tx_to.vin.size());
     if (!(cache.m_bip341_taproot_ready && cache.m_spent_outputs_ready)) {
         if (cache.m_bip341_taproot_ready) {
-            btc_sign_logf("- BIP341-taproot ready but spent outputs are not\n");
+            aix_sign_logf("- BIP341-taproot ready but spent outputs are not\n");
         } else {
-            btc_sign_logf("- BIP341-taproot not ready\n");
+            aix_sign_logf("- BIP341-taproot not ready\n");
         }
         return HandleMissingData(mdb);
     }
 
-    HashWriter::debug = btc_enabled(btc_sighash_logf);
+    HashWriter::debug = aix_enabled(aix_sighash_logf);
     HashWriter ss{HASHER_TAPSIGHASH};
 
     // Epoch
     static constexpr uint8_t EPOCH = 0;
-    btc_sighash_logf(" << epoch\n");
+    aix_sighash_logf(" << epoch\n");
     ss << EPOCH;
     // Hash type
     const uint8_t output_type = (hash_type == SIGHASH_DEFAULT) ? SIGHASH_ALL : (hash_type & SIGHASH_OUTPUT_MASK); // Default (no sighash byte) is equivalent to SIGHASH_ALL
     const uint8_t input_type = hash_type & SIGHASH_INPUT_MASK;
     if (!(hash_type <= 0x03 || (hash_type >= 0x81 && hash_type <= 0x83))) return false;
-    btc_sighash_logf(" << hash type\n");
+    aix_sighash_logf(" << hash type\n");
     ss << hash_type;
     // Transaction level data
-    btc_sighash_logf(" << tx_to.nVersion\n");
+    aix_sighash_logf(" << tx_to.nVersion\n");
     ss << tx_to.nVersion;
-    btc_sighash_logf(" << tx_to.nLockTime\n");
+    aix_sighash_logf(" << tx_to.nLockTime\n");
     ss << tx_to.nLockTime;
     if (input_type != SIGHASH_ANYONECANPAY) {
-        btc_sighash_logf("input type != anyone can pay:\n");
-        btc_sighash_logf(" << cache prevouts single hash\n");
+        aix_sighash_logf("input type != anyone can pay:\n");
+        aix_sighash_logf(" << cache prevouts single hash\n");
         ss << cache.m_prevouts_single_hash;
-        btc_sighash_logf(" << cache spent amounts single hash\n");
+        aix_sighash_logf(" << cache spent amounts single hash\n");
         ss << cache.m_spent_amounts_single_hash;
-        btc_sighash_logf(" << cache spent scripts single hash\n");
+        aix_sighash_logf(" << cache spent scripts single hash\n");
         ss << cache.m_spent_scripts_single_hash;
-        btc_sighash_logf(" << cache sequences single hash\n");
+        aix_sighash_logf(" << cache sequences single hash\n");
         ss << cache.m_sequences_single_hash;
     }
     if (output_type == SIGHASH_ALL) {
-        btc_sighash_logf("output type == sighash_all\n");
-        btc_sighash_logf(" << cache outputs single hash\n");
+        aix_sighash_logf("output type == sighash_all\n");
+        aix_sighash_logf(" << cache outputs single hash\n");
         ss << cache.m_outputs_single_hash;
     }
 
@@ -1642,37 +1642,37 @@ bool SignatureHashSchnorr(uint256& hash_out, ScriptExecutionData& execdata, cons
     assert(execdata.m_annex_init);
     const bool have_annex = execdata.m_annex_present;
     const uint8_t spend_type = (ext_flag << 1) + (have_annex ? 1 : 0); // The low bit indicates whether an annex is present.
-    btc_sighash_logf(" << spend type\n");
+    aix_sighash_logf(" << spend type\n");
     ss << spend_type;
     if (input_type == SIGHASH_ANYONECANPAY) {
-        btc_sighash_logf("anyone can pay\n");
-        btc_sighash_logf(" << tx_to.vin[%u].prevout\n", in_pos);
+        aix_sighash_logf("anyone can pay\n");
+        aix_sighash_logf(" << tx_to.vin[%u].prevout\n", in_pos);
         ss << tx_to.vin[in_pos].prevout;
-        btc_sighash_logf(" << cache spent outputs[%u]\n", in_pos);
+        aix_sighash_logf(" << cache spent outputs[%u]\n", in_pos);
         ss << cache.m_spent_outputs[in_pos];
-        btc_sighash_logf(" << tx_to.vin[%u].sequence\n", in_pos);
+        aix_sighash_logf(" << tx_to.vin[%u].sequence\n", in_pos);
         ss << tx_to.vin[in_pos].nSequence;
     } else {
-        btc_sighash_logf(" << in_pos\n");
+        aix_sighash_logf(" << in_pos\n");
         ss << in_pos;
     }
     if (have_annex) {
-        btc_sighash_logf(" << annex hash\n");
+        aix_sighash_logf(" << annex hash\n");
         ss << execdata.m_annex_hash;
     }
 
     // Data about the output (if only one).
     if (output_type == SIGHASH_SINGLE) {
-        btc_sighash_logf("sighash single\n");
+        aix_sighash_logf("sighash single\n");
         if (in_pos >= tx_to.vout.size()) {
-            btc_sighash_logf(" << in_pos >= tx_to.vout.size()\n");
+            aix_sighash_logf(" << in_pos >= tx_to.vout.size()\n");
             return false;
         }
         if (!execdata.m_output_hash) {
-            btc_sighash_logf(" (sha_single_output) << tx_to.vout[in_pos]\n");
+            aix_sighash_logf(" (sha_single_output) << tx_to.vout[in_pos]\n");
             HashWriter sha_single_output{};
             sha_single_output << tx_to.vout[in_pos];
-            btc_sighash_logf(" << sha_single_output\n");
+            aix_sighash_logf(" << sha_single_output\n");
             execdata.m_output_hash = sha_single_output.GetSHA256();
         }
         ss << execdata.m_output_hash.value();
@@ -1680,13 +1680,13 @@ bool SignatureHashSchnorr(uint256& hash_out, ScriptExecutionData& execdata, cons
 
     // Additional data for BIP 342 signatures
     if (sigversion == SigVersion::TAPSCRIPT) {
-        btc_sighash_logf("taproot sigversion:\n");
-        btc_sighash_logf(" << tapleaf hash\n");
+        aix_sighash_logf("taproot sigversion:\n");
+        aix_sighash_logf(" << tapleaf hash\n");
         assert(execdata.m_tapleaf_hash_init);
         ss << execdata.m_tapleaf_hash;
-        btc_sighash_logf(" << key version\n");
+        aix_sighash_logf(" << key version\n");
         ss << key_version;
-        btc_sighash_logf(" << code separator position\n");
+        aix_sighash_logf(" << code separator position\n");
         assert(execdata.m_codeseparator_pos_init);
         ss << execdata.m_codeseparator_pos;
     }
@@ -1698,75 +1698,75 @@ bool SignatureHashSchnorr(uint256& hash_out, ScriptExecutionData& execdata, cons
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
 {
-    btc_sign_logf("SignatureHash(nIn=%d, nHashType=%02x, amount=%lld)\n", nIn, nHashType, amount);
+    aix_sign_logf("SignatureHash(nIn=%d, nHashType=%02x, amount=%lld)\n", nIn, nHashType, amount);
     assert(nIn < txTo.vin.size());
     if (sigversion == SigVersion::WITNESS_V0) {
-        btc_sign_logf("- sigversion == SIGVERSION_WITNESS_V0\n");
+        aix_sign_logf("- sigversion == SIGVERSION_WITNESS_V0\n");
         uint256 hashPrevouts;
         uint256 hashSequence;
         uint256 hashOutputs;
         const bool cacheready = cache && cache->m_bip143_segwit_ready;
-        HashWriter::debug = btc_enabled(btc_sighash_logf);
+        HashWriter::debug = aix_enabled(aix_sighash_logf);
         if (!(nHashType & SIGHASH_ANYONECANPAY)) {
             hashPrevouts = cacheready ? cache->hashPrevouts : SHA256Uint256(GetPrevoutsSHA256(txTo));
-            btc_sighash_logf("  hashPrevouts = %s\n", hashPrevouts.ToString().c_str());
+            aix_sighash_logf("  hashPrevouts = %s\n", hashPrevouts.ToString().c_str());
         }
         if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
             hashSequence = cacheready ? cache->hashSequence : SHA256Uint256(GetSequencesSHA256(txTo));
-            btc_sighash_logf("  hashSequence = %s\n", hashSequence.ToString().c_str());
+            aix_sighash_logf("  hashSequence = %s\n", hashSequence.ToString().c_str());
         }
         if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
             hashOutputs = cacheready ? cache->hashOutputs : SHA256Uint256(GetOutputsSHA256(txTo));
-            btc_sighash_logf("  hashOutputs [!single] = %s\n", hashOutputs.ToString().c_str());
+            aix_sighash_logf("  hashOutputs [!single] = %s\n", hashOutputs.ToString().c_str());
         } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nIn < txTo.vout.size()) {
             HashWriter ss{};
             ss << txTo.vout[nIn];
             hashOutputs = ss.GetHash();
-            btc_sighash_logf("  hashOutputs [single] = %s\n", hashOutputs.ToString().c_str());
+            aix_sighash_logf("  hashOutputs [single] = %s\n", hashOutputs.ToString().c_str());
         }
         HashWriter ss{};
         // Version
-        btc_sighash_logf("SERIALIZING:\n");
+        aix_sighash_logf("SERIALIZING:\n");
         ss << txTo.nVersion;
-        btc_sighash_logf(" << txTo.nVersion = %d\n", txTo.nVersion);
+        aix_sighash_logf(" << txTo.nVersion = %d\n", txTo.nVersion);
         // Input prevouts/nSequence (none/all, depending on flags)
         ss << hashPrevouts;
-        btc_sighash_logf(" << hashPrevouts\n");
+        aix_sighash_logf(" << hashPrevouts\n");
         ss << hashSequence;
-        btc_sighash_logf(" << hashSequence\n");
+        aix_sighash_logf(" << hashSequence\n");
         // The input being signed (replacing the scriptSig with scriptCode + amount)
         // The prevout may already be contained in hashPrevout, and the nSequence
         // may already be contain in hashSequence.
         ss << txTo.vin[nIn].prevout;
-        btc_sighash_logf(" << txTo.vin[nIn=%d].prevout = %s\n", nIn, txTo.vin[nIn].prevout.ToString().c_str());
+        aix_sighash_logf(" << txTo.vin[nIn=%d].prevout = %s\n", nIn, txTo.vin[nIn].prevout.ToString().c_str());
         ss << scriptCode;
-        btc_sighash_logf(" << scriptCode\n");
+        aix_sighash_logf(" << scriptCode\n");
         ss << amount;
-        btc_sighash_logf(" << amount = %" PRId64 "\n", amount);
+        aix_sighash_logf(" << amount = %" PRId64 "\n", amount);
         ss << txTo.vin[nIn].nSequence;
-        btc_sighash_logf(" << txTo.vin[nIn].nSequence = %u (0x%x)\n", txTo.vin[nIn].nSequence, txTo.vin[nIn].nSequence);
+        aix_sighash_logf(" << txTo.vin[nIn].nSequence = %u (0x%x)\n", txTo.vin[nIn].nSequence, txTo.vin[nIn].nSequence);
         // Outputs (none/one/all, depending on flags)
         ss << hashOutputs;
-        btc_sighash_logf(" << hashOutputs\n");
+        aix_sighash_logf(" << hashOutputs\n");
         // Locktime
         ss << txTo.nLockTime;
-        btc_sighash_logf(" << txTo.nLockTime = %d\n", txTo.nLockTime);
+        aix_sighash_logf(" << txTo.nLockTime = %d\n", txTo.nLockTime);
         // Sighash type
         ss << nHashType;
-        btc_sighash_logf(" << nHashType = %02x\n", nHashType);
+        aix_sighash_logf(" << nHashType = %02x\n", nHashType);
         uint256 sighash = ss.GetHash();
-        btc_sighash_logf("RESULTING HASH = %s\n", sighash.ToString().c_str());
+        aix_sighash_logf("RESULTING HASH = %s\n", sighash.ToString().c_str());
         HashWriter::debug = false;
         return sighash;
     }
 
-    btc_sign_logf("- sigversion = SIGVERSION_BASE (non-segwit style)\n");
+    aix_sign_logf("- sigversion = SIGVERSION_BASE (non-segwit style)\n");
 
     // Check for invalid use of SIGHASH_SINGLE
     if ((nHashType & 0x1f) == SIGHASH_SINGLE) {
         if (nIn >= txTo.vout.size()) {
             //  nOut out of range
-            btc_sign_logf("  nIn >= txTo.vout.size() [nOut out of range]\n");
+            aix_sign_logf("  nIn >= txTo.vout.size() [nOut out of range]\n");
             return uint256::ONE;
         }
     }
@@ -1775,7 +1775,7 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
     CTransactionSignatureSerializer<T> txTmp(txTo, scriptCode, nIn, nHashType);
 
     // Serialize and hash
-    HashWriter::debug = btc_enabled(btc_sighash_logf);
+    HashWriter::debug = aix_enabled(aix_sighash_logf);
     HashWriter ss{};
     ss << txTmp << nHashType;
     HashWriter::debug = false;
@@ -1785,55 +1785,55 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
 template <class T>
 bool GenericTransactionSignatureChecker<T>::VerifyECDSASignature(const std::vector<unsigned char>& vchSig, const CPubKey& pubkey, const uint256& sighash) const
 {
-    btc_sign_logf("  pubkey.VerifyECDSASignature(sig=%s, sighash=%s):\n", HexStr(vchSig).c_str(), sighash.ToString().c_str());
+    aix_sign_logf("  pubkey.VerifyECDSASignature(sig=%s, sighash=%s):\n", HexStr(vchSig).c_str(), sighash.ToString().c_str());
     bool res = pubkey.Verify(sighash, vchSig);
-    btc_sign_logf("  result: %s\n", res ? "success" : "FAILURE");
+    aix_sign_logf("  result: %s\n", res ? "success" : "FAILURE");
     return res;
 }
 
 template <class T>
 bool GenericTransactionSignatureChecker<T>::VerifySchnorrSignature(Span<const unsigned char> sig, const XOnlyPubKey& pubkey, const uint256& sighash) const
 {
-    btc_sign_logf("  pubkey.VerifySchnorrSignature(sig=%s, sighash=%s):\n", HexStr(sig).c_str(), sighash.ToString().c_str());
+    aix_sign_logf("  pubkey.VerifySchnorrSignature(sig=%s, sighash=%s):\n", HexStr(sig).c_str(), sighash.ToString().c_str());
     bool res = pubkey.VerifySchnorr(sighash, sig);
-    btc_sign_logf("  result: %s\n", res ? "success" : "FAILURE");
+    aix_sign_logf("  result: %s\n", res ? "success" : "FAILURE");
     return res;
 }
 
 template <class T>
 bool GenericTransactionSignatureChecker<T>::CheckECDSASignature(const std::vector<unsigned char>& vchSigIn, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const
 {
-    btc_sign_logf("GenericTransactionSignatureChecker::CheckECDSASignature(%zu len sig, %zu len pubkey, sigversion=%d)\n", vchSigIn.size(), vchPubKey.size(), sigversion);
-    btc_sign_logf("  sig         = "); print_vec(vchSigIn, btc_sign_logf); btc_sign_logf("\n");
-    btc_sign_logf("  pub key     = "); print_vec(vchPubKey, btc_sign_logf); btc_sign_logf("\n");
-    btc_sign_logf("  script code = "); print_vec(scriptCode, btc_sign_logf); btc_sign_logf("\n");
+    aix_sign_logf("GenericTransactionSignatureChecker::CheckECDSASignature(%zu len sig, %zu len pubkey, sigversion=%d)\n", vchSigIn.size(), vchPubKey.size(), sigversion);
+    aix_sign_logf("  sig         = "); print_vec(vchSigIn, aix_sign_logf); aix_sign_logf("\n");
+    aix_sign_logf("  pub key     = "); print_vec(vchPubKey, aix_sign_logf); aix_sign_logf("\n");
+    aix_sign_logf("  script code = "); print_vec(scriptCode, aix_sign_logf); aix_sign_logf("\n");
     CPubKey pubkey(vchPubKey);
     if (!pubkey.IsValid()) {
-        btc_sign_logf("- failed: pubkey is not valid\n");
+        aix_sign_logf("- failed: pubkey is not valid\n");
         return false;
     }
 
     // Hash type is one byte tacked on to the end of the signature
     std::vector<unsigned char> vchSig(vchSigIn);
     if (vchSig.empty()) {
-        btc_sign_logf("- failed: signature is empty\n");
+        aix_sign_logf("- failed: signature is empty\n");
         return false;
     }
     int nHashType = vchSig.back();
     vchSig.pop_back();
-    btc_sign_logf("  hash type   = %02x (%s)\n", nHashType, hashtype_str(nHashType).c_str());
+    aix_sign_logf("  hash type   = %02x (%s)\n", nHashType, hashtype_str(nHashType).c_str());
 
     // Witness sighashes need the amount.
     if (sigversion == SigVersion::WITNESS_V0 && amount < 0) {
-        btc_sign_logf("- failed: witness sighashes need the amount");
+        aix_sign_logf("- failed: witness sighashes need the amount");
         return HandleMissingData(m_mdb);
     }
 
     uint256 sighash = SignatureHash(scriptCode, *txTo, nIn, nHashType, amount, sigversion, this->txdata);
-    btc_sign_logf("  sighash     = %s\n", sighash.ToString().c_str());
+    aix_sign_logf("  sighash     = %s\n", sighash.ToString().c_str());
 
     if (!VerifyECDSASignature(vchSig, pubkey, sighash)) {
-        btc_sign_logf("- failed: VerifyECDSASignature() failed\n");
+        aix_sign_logf("- failed: VerifyECDSASignature() failed\n");
         return false;
     }
 
@@ -1843,14 +1843,14 @@ bool GenericTransactionSignatureChecker<T>::CheckECDSASignature(const std::vecto
 template <class T>
 bool GenericTransactionSignatureChecker<T>::CheckSchnorrSignature(Span<const unsigned char> sig, Span<const unsigned char> pubkey_in, SigVersion sigversion, ScriptExecutionData& execdata, ScriptError* serror) const
 {
-    btc_sign_logf("GenericTransactionSignatureChecker::CheckSchnorrSignature(%zu len sig, %zu len pubkey, sigversion=%d)\n", sig.size(), pubkey_in.size(), sigversion);
-    btc_sign_logf("  sig         = %s\n", HexStr(sig).c_str());
-    btc_sign_logf("  pub key     = %s\n", HexStr(pubkey_in).c_str());
+    aix_sign_logf("GenericTransactionSignatureChecker::CheckSchnorrSignature(%zu len sig, %zu len pubkey, sigversion=%d)\n", sig.size(), pubkey_in.size(), sigversion);
+    aix_sign_logf("  sig         = %s\n", HexStr(sig).c_str());
+    aix_sign_logf("  pub key     = %s\n", HexStr(pubkey_in).c_str());
 
     assert(sigversion == SigVersion::TAPROOT || sigversion == SigVersion::TAPSCRIPT);
     // Schnorr signatures have 32-byte public keys. The caller is responsible for enforcing this.
     if (pubkey_in.size() != 32) {
-        btc_sign_logf("- failed (assertion!): pubkey size invalid (%zu should be 32)\n", pubkey_in.size());
+        aix_sign_logf("- failed (assertion!): pubkey size invalid (%zu should be 32)\n", pubkey_in.size());
         throw std::runtime_error("assertion failed: pubkey_in.size() == 32");
     }
     // Note that in Tapscript evaluation, empty signatures are treated specially (invalid signature that does not
@@ -1858,7 +1858,7 @@ bool GenericTransactionSignatureChecker<T>::CheckSchnorrSignature(Span<const uns
     // CheckSchnorrSignature in that case. In other contexts, they are invalid like every other signature with
     // size different from 64 or 65.
     if (sig.size() != 64 && sig.size() != 65) {
-        btc_sign_logf("- failed: signature size invalid (must be 64 or 65 bytes, but is %zu bytes)", sig.size());
+        aix_sign_logf("- failed: signature size invalid (must be 64 or 65 bytes, but is %zu bytes)", sig.size());
         return set_error(serror, SCRIPT_ERR_SCHNORR_SIG_SIZE);
     }
 
@@ -1868,23 +1868,23 @@ bool GenericTransactionSignatureChecker<T>::CheckSchnorrSignature(Span<const uns
     if (sig.size() == 65) {
         hashtype = SpanPopBack(sig);
         if (hashtype == SIGHASH_DEFAULT) {
-            btc_sign_logf("- failed: hashtype must not be SIGHASH_DEFAULT (%u but it is (%u)", SIGHASH_DEFAULT, hashtype);
+            aix_sign_logf("- failed: hashtype must not be SIGHASH_DEFAULT (%u but it is (%u)", SIGHASH_DEFAULT, hashtype);
             return set_error(serror, SCRIPT_ERR_SCHNORR_SIG_HASHTYPE);
         }
     }
     uint256 sighash;
     if (!this->txdata) {
-        btc_sign_logf("- transaction data missing");
+        aix_sign_logf("- transaction data missing");
         return HandleMissingData(m_mdb);
     }
     bool ret = SignatureHashSchnorr(sighash, execdata, *txTo, nIn, hashtype, sigversion, *this->txdata, m_mdb);
     if (!ret) {
-        btc_sign_logf("- failed generating schnorr signature hash\n");
+        aix_sign_logf("- failed generating schnorr signature hash\n");
         return set_error(serror, SCRIPT_ERR_SCHNORR_SIG_HASHTYPE);
     }
-    btc_sign_logf("- schnorr sighash = %s\n", sighash.ToString().c_str());
+    aix_sign_logf("- schnorr sighash = %s\n", sighash.ToString().c_str());
     if (!VerifySchnorrSignature(sig, pubkey, sighash)) {
-        btc_sign_logf("- schnorr signature verification ***FAILED***\n");
+        aix_sign_logf("- schnorr signature verification ***FAILED***\n");
         return set_error(serror, SCRIPT_ERR_SCHNORR_SIG);
     }
     return true;
@@ -1980,7 +1980,7 @@ template class GenericTransactionSignatureChecker<CMutableTransaction>;
 
 static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CScript& exec_script, unsigned int flags, SigVersion sigversion, const BaseSignatureChecker& checker, ScriptExecutionData& execdata, ScriptError* serror)
 {
-    btc_logf("Executing witness program with sigversion %d\n", sigversion);
+    aix_logf("Executing witness program with sigversion %d\n", sigversion);
     std::vector<valtype> stack{stack_span.begin(), stack_span.end()};
 
     if (sigversion == SigVersion::TAPSCRIPT) {
@@ -1990,12 +1990,12 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
             opcodetype opcode;
             if (!exec_script.GetOp(pc, opcode)) {
                 // Note how this condition would not be reached if an unknown OP_SUCCESSx was found
-                btc_logf("- script pub key GetOp failed\n");
+                aix_logf("- script pub key GetOp failed\n");
                 return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }
             // New opcodes will be listed here. May use a different sigversion to modify existing opcodes.
             if (IsOpSuccess(opcode)) {
-                btc_logf("- success op (%s)\n", flags & SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS ? "discouraged; failing" : "allowed; succeeding");
+                aix_logf("- success op (%s)\n", flags & SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS ? "discouraged; failing" : "allowed; succeeding");
                 if (flags & SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS) {
                     return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                 }
@@ -2028,45 +2028,45 @@ uint256 ComputeTapleafHash(uint8_t leaf_version, const CScript& script)
 
 uint256 ComputeTaprootMerkleRoot(Span<const unsigned char> control, const uint256& tapleaf_hash)
 {
-    btc_taproot_logf("Computing taproot merkle root:\n");
-    btc_taproot_logf("- control      = %s\n", HexStr(control).c_str());
-    btc_taproot_logf("- tapleaf hash = %s\n", HexStr(tapleaf_hash).c_str());
+    aix_taproot_logf("Computing taproot merkle root:\n");
+    aix_taproot_logf("- control      = %s\n", HexStr(control).c_str());
+    aix_taproot_logf("- tapleaf hash = %s\n", HexStr(tapleaf_hash).c_str());
     assert(control.size() >= TAPROOT_CONTROL_BASE_SIZE);
     assert(control.size() <= TAPROOT_CONTROL_MAX_SIZE);
     assert((control.size() - TAPROOT_CONTROL_BASE_SIZE) % TAPROOT_CONTROL_NODE_SIZE == 0);
 
     const int path_len = (control.size() - TAPROOT_CONTROL_BASE_SIZE) / TAPROOT_CONTROL_NODE_SIZE;
-    btc_taproot_logf("- path len     = %d\n", path_len);
+    aix_taproot_logf("- path len     = %d\n", path_len);
     uint256 k = tapleaf_hash;
-    btc_taproot_logf("- k            = %s          (tap leaf hash)\n", k.ToString().c_str());
+    aix_taproot_logf("- k            = %s          (tap leaf hash)\n", k.ToString().c_str());
     std::string k_desc = strprintf("TapLeaf(0x%02x || ?)", uint8_t(control[0] & TAPROOT_LEAF_MASK)); // , HexStr(script).c_str()
-    btc_taproot_logf("  (%s)\n", k_desc.c_str());
-    btc_taproot_logf("- looping over path (0..%d)\n", path_len-1);
+    aix_taproot_logf("  (%s)\n", k_desc.c_str());
+    aix_taproot_logf("- looping over path (0..%d)\n", path_len-1);
     for (int i = 0; i < path_len; ++i) {
         HashWriter ss_branch{HASHER_TAPBRANCH};
         Span node{Span{control}.subspan(TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * i, TAPROOT_CONTROL_NODE_SIZE)};
         if (std::lexicographical_compare(k.begin(), k.end(), node.begin(), node.end())) {
-            btc_taproot_logf("  - %d: node = %02x...; taproot control node match -> k first\n", i, node[0]);
+            aix_taproot_logf("  - %d: node = %02x...; taproot control node match -> k first\n", i, node[0]);
             k_desc = strprintf("TapBranch(%s || Span<%d,%zu>=%s)", k_desc.c_str(), TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * i, TAPROOT_CONTROL_NODE_SIZE, HexStr(node).c_str());
             ss_branch << k << node;
         } else {
-            btc_taproot_logf("  - %d: node = %02x...; taproot control node mismatch -> k second\n", i, node[0]);
+            aix_taproot_logf("  - %d: node = %02x...; taproot control node mismatch -> k second\n", i, node[0]);
             k_desc = strprintf("TapBranch(Span<%d,%zu>=%s || %s)", TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * i, TAPROOT_CONTROL_NODE_SIZE, HexStr(node).c_str(), k_desc.c_str());
             ss_branch << node << k;
         }
-        btc_taproot_logf("  (%s)\n", k_desc.c_str());
+        aix_taproot_logf("  (%s)\n", k_desc.c_str());
         k = ss_branch.GetSHA256();
-        btc_taproot_logf("  - %d: k -> %s\n", i, k.ToString().c_str());
+        aix_taproot_logf("  - %d: k -> %s\n", i, k.ToString().c_str());
     }
     return k;
 }
 
 bool VerifyTaprootCommitment(const std::vector<unsigned char>& control, const std::vector<unsigned char>& program, const uint256& tapleaf_hash)
 {
-    btc_taproot_logf("Verifying taproot commitment:\n");
-    btc_taproot_logf("- control      = %s\n", HexStr(control).c_str());
-    btc_taproot_logf("- program      = %s\n", HexStr(program).c_str());
-    btc_taproot_logf("- tapleaf hash = %s\n", HexStr(tapleaf_hash).c_str());
+    aix_taproot_logf("Verifying taproot commitment:\n");
+    aix_taproot_logf("- control      = %s\n", HexStr(control).c_str());
+    aix_taproot_logf("- program      = %s\n", HexStr(program).c_str());
+    aix_taproot_logf("- tapleaf hash = %s\n", HexStr(tapleaf_hash).c_str());
     assert(control.size() >= TAPROOT_CONTROL_BASE_SIZE);
     assert(program.size() >= uint256::size());
     //! The internal pubkey (x-only, so no Y coordinate parity).
@@ -2075,12 +2075,12 @@ bool VerifyTaprootCommitment(const std::vector<unsigned char>& control, const st
     const XOnlyPubKey q{program};
     // Compute the Merkle root from the leaf and the provided path.
     const uint256 merkle_root = ComputeTaprootMerkleRoot(control, tapleaf_hash);
-    btc_taproot_logf("- p            = %s\n", p.ToString().c_str());
-    btc_taproot_logf("- q            = %s\n", q.ToString().c_str());
-    btc_taproot_logf("- merkle root  = %s\n", merkle_root.ToString().c_str());
+    aix_taproot_logf("- p            = %s\n", p.ToString().c_str());
+    aix_taproot_logf("- q            = %s\n", q.ToString().c_str());
+    aix_taproot_logf("- merkle root  = %s\n", merkle_root.ToString().c_str());
     // Verify that the output pubkey matches the tweaked internal pubkey, after correcting for parity.
     bool res = q.CheckTapTweak(p, merkle_root, control[0] & 1);
-    btc_taproot_logf("- q.CheckTapTweak(p, merkle_root, %d) == %s\n", control[0] & 1, res ? "success" : "failure");
+    aix_taproot_logf("- q.CheckTapTweak(p, merkle_root, %d) == %s\n", control[0] & 1, res ? "success" : "failure");
     return res;
 }
 

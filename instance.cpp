@@ -261,12 +261,12 @@ bool Instance::eval(const size_t argc, char* const* argv) {
                     std::vector<unsigned char> pushData;
                     if (TryHex(v, pushData)) {
                         // it can; warn about using 0x for hex
-                        if (VALUE_WARN) btc_logf("warning: ambiguous input %s is interpreted as a numeric value; use 0x%s to force into hexadecimal interpretation\n", v, v);
+                        if (VALUE_WARN) aix_logf("warning: ambiguous input %s is interpreted as a numeric value; use 0x%s to force into hexadecimal interpretation\n", v, v);
                     }
                 }
                 // can it be an opcode too?
                 if (n < 16) {
-                    if (VALUE_WARN) btc_logf("warning: ambiguous input %s is interpreted as a numeric value (%s), not as an opcode (OP_%s). Use OP_%s to force into op code interpretation\n", v, v, v, v);
+                    if (VALUE_WARN) aix_logf("warning: ambiguous input %s is interpreted as a numeric value (%s), not as an opcode (OP_%s). Use OP_%s to force into op code interpretation\n", v, v, v, v);
                 }
 
                 script << (int64_t)n;
@@ -306,12 +306,12 @@ bool Instance::configure_tx_txin() {
     // the script is the witness stack, last entry, or scriptpubkey
     // the stack is the witness stack minus last entry, in order, or the results of executing the scriptSig
     amounts[txin_index] = txin->vout[txin_vout_index].nValue;
-    btc_logf("input tx index = %" PRId64 "; tx input vout = %" PRId64 "; value = %" PRId64 "\n", txin_index, txin_vout_index, amounts[txin_index]);
+    aix_logf("input tx index = %" PRId64 "; tx input vout = %" PRId64 "; value = %" PRId64 "\n", txin_index, txin_vout_index, amounts[txin_index]);
     auto& wstack = tx->vin[txin_index].scriptWitness.stack;
     auto& scriptSig = tx->vin[txin_index].scriptSig;
     CScript scriptPubKey = txin->vout[txin_vout_index].scriptPubKey;
     std::vector<const char*> push_del;
-    btc_segwit_logf("got witness stack of size %zu\n", wstack.size());
+    aix_segwit_logf("got witness stack of size %zu\n", wstack.size());
     if (wstack.size() > 0) {
         // segwit
         // P2WPKH:
@@ -368,7 +368,7 @@ bool Instance::configure_tx_txin() {
         bool wsh;
         uint8_t witprogver; // 0 for pre-taproot, 1 for taproot/tapscript; note that SigVersion has 2 values for taproot (2) vs tapscript (3)
         if (scriptSig.size() > 0) {
-            btc_segwit_logf("script sig non-empty; embedded P2SH (extracting payload)\n");
+            aix_segwit_logf("script sig non-empty; embedded P2SH (extracting payload)\n");
             // Embedded in P2SH -- payload extraction required
             CScript::const_iterator it2 = scriptSig.begin();
             if (!scriptSig.GetOp(it2, opcode, pushval)) {
@@ -382,7 +382,7 @@ bool Instance::configure_tx_txin() {
             validation = CScript(pushval.begin(), pushval.end());
             hashsrc = Value(pushval);
             CScript::const_iterator it = scriptPubKey.begin();
-            btc_segwit_logf("hash source = %s\n", hashsrc.hex_str().c_str());
+            aix_segwit_logf("hash source = %s\n", hashsrc.hex_str().c_str());
             // TODO: run this using interpreter instead
             if (!scriptPubKey.GetOp(it, opcode, pushval)) {
                 fprintf(stderr, "can't parse script pub key, or script pub key ended prematurely\n");
@@ -414,8 +414,8 @@ bool Instance::configure_tx_txin() {
             source = "script sig";
         }
         switch (validation.size()) {
-            case 22: wsh = false; btc_segwit_logf("22 bytes (P2WPKH)\n"); break;
-            case 34: wsh = true;  btc_segwit_logf("34 bytes (v0=P2WSH, v1=taproot/tapscript)\n"); break;
+            case 22: wsh = false; aix_segwit_logf("22 bytes (P2WPKH)\n"); break;
+            case 34: wsh = true;  aix_segwit_logf("34 bytes (v0=P2WSH, v1=taproot/tapscript)\n"); break;
             default:
                 fprintf(stderr, "expected 22 or 34 byte script inside %s, but got %u bytes: %s\n", source.c_str(), validation.size(), HexStr(validation).c_str());
                 return false;
@@ -481,7 +481,7 @@ bool Instance::configure_tx_txin() {
             // size_t wstack_to_stack = wstack.size();
             if (!wsh) {
                 validation = CScript() << OP_DUP << OP_HASH160 << program << OP_EQUALVERIFY << OP_CHECKSIG;
-                // this is the preamble; it is btcdeb pretending that a script exists which doesn't
+                // this is the preamble; it is aixdeb pretending that a script exists which doesn't
                 has_preamble = true;
             } else {
                 wstack_to_stack--; // do not include the script on the stack
@@ -513,7 +513,7 @@ bool Instance::configure_tx_txin() {
                 // Key path spending (stack size is 1 after removing optional annex)
                 validation = CScript() << program << OP_CHECKSIG;
                 sigver = SigVersion::TAPROOT;
-                // this is the preamble; it is btcdeb pretending that a script exists which doesn't
+                // this is the preamble; it is aixdeb pretending that a script exists which doesn't
                 has_preamble = true;
             } else {
                 // Script path spending (stack size is >1 after removing optional annex)
@@ -546,7 +546,7 @@ bool Instance::configure_tx_txin() {
         } else assert(!"should never get here; was a new witprogver added?");
 
         if (parse_script(std::vector<uint8_t>(validation.begin(), validation.end()))) {
-            btc_logf("valid script\n");
+            aix_logf("valid script\n");
         } else {
             fprintf(stderr, "invalid script (witness stack last element)\n");
             return false;

@@ -7,19 +7,19 @@
 #include <util/strencodings.h>
 #include <cstdarg>
 
-bool btcdeb_verbose{false};
-void btc_logf_dummy(const char* fmt...) {}
-void btc_logf_stderr(const char* fmt...) {
+bool aixdeb_verbose{false};
+void aix_logf_dummy(const char* fmt...) {}
+void aix_logf_stderr(const char* fmt...) {
     va_list args;
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
     va_end(args);
 }
-btc_logf_t btc_logf = btc_logf_stderr;
-btc_logf_t btc_sighash_logf = btc_logf_dummy;
-btc_logf_t btc_sign_logf = btc_logf_dummy;
-btc_logf_t btc_segwit_logf = btc_logf_dummy;
-btc_logf_t btc_taproot_logf = btc_logf_dummy;
+aix_logf_t aix_logf = aix_logf_stderr;
+aix_logf_t aix_sighash_logf = aix_logf_dummy;
+aix_logf_t aix_sign_logf = aix_logf_dummy;
+aix_logf_t aix_segwit_logf = aix_logf_dummy;
+aix_logf_t aix_taproot_logf = aix_logf_dummy;
 
 opcodetype GetOpCode(const char* name)
 {
@@ -32,9 +32,9 @@ opcodetype GetOpCode(const char* name)
     if (name[0] == 'x') {
         // OP_xNN is a short-hand for emitting an arbitrary opcode NN
         if (!IsHex(&name[1])) {
-            btc_logf("warning: opcode beginning with 'x' prefix is not a hex value\n");
+            aix_logf("warning: opcode beginning with 'x' prefix is not a hex value\n");
         } else if (strlen(name) != 3) {
-            btc_logf("warning: opcode 'x' prefix must be followed by a one byte (2 hex digit) value\n");
+            aix_logf("warning: opcode 'x' prefix must be followed by a one byte (2 hex digit) value\n");
         } else {
             int v = (HexDigit(name[1]) << 4) | HexDigit(name[2]);
             return (opcodetype)v;
@@ -174,7 +174,7 @@ opcodetype GetOpCode(const char* name)
     c(CHECKSIGADD);
 
     if (expected_opcode) {
-        btc_logf("warning: opcode-like string was not an opcode: %s\n", name);
+        aix_logf("warning: opcode-like string was not an opcode: %s\n", name);
     }
     return OP_INVALIDOPCODE;
 }

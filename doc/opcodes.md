@@ -4,7 +4,7 @@ Opcodes are a central part of the script language in Aixcoin. In fact, everythin
 
 You can read more about Aixcoin Script here: https://en.aixcoin.it/wiki/Script
 
-In btcdeb/btcc, you can express opcodes in two ways:
+In aixdeb/aixc, you can express opcodes in two ways:
 
 * By opcode name, e.g. `OP_TRUE`, where you can often (but not always) skip the `OP_` prefix (i.e. `TRUE`)
 * By opcode hex code, using the `OP_x` (or simply `x`) prefix, e.g. `OP_xfe` OR `xfe`. This can also be used to express *non-existent opcodes*, such as `OP_xfe` for a template `OP_PUBKEY`, as used in earlier versions of Aixcoin Core

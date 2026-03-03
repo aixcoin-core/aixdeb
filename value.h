@@ -198,11 +198,11 @@ struct Value {
                     std::vector<unsigned char> pushData;
                     if (TryHex(v, pushData)) {
                         // it can; warn about using 0x for hex
-                        if (VALUE_WARN) btc_logf("warning: ambiguous input %s is interpreted as a numeric value; use 0x%s to force into hexadecimal interpretation\n", v, v);
+                        if (VALUE_WARN) aix_logf("warning: ambiguous input %s is interpreted as a numeric value; use 0x%s to force into hexadecimal interpretation\n", v, v);
                     }
                 }
                 if (int64 >= 1 && int64 <= 16) {
-                    if (VALUE_WARN) btc_logf("warning: ambiguous input %s is interpreted as a numeric value; use OP_%s to force into opcode\n", v, v);
+                    if (VALUE_WARN) aix_logf("warning: ambiguous input %s is interpreted as a numeric value; use OP_%s to force into opcode\n", v, v);
                 }
                 type = T_INT;
                 return;

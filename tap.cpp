@@ -44,8 +44,8 @@ typedef std::vector<uint8_t> Item;
 static Item PLACEHOLDER_SIGNATURE = ParseHex("000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f");
 
 bool quiet = false;
-bool pipe_in = false;  // xxx | btcdeb
-bool pipe_out = false; // btcdeb xxx > file
+bool pipe_in = false;  // xxx | aixdeb
+bool pipe_out = false; // aixdeb xxx > file
 
 inline bool checkenv(const std::string& flag, bool fallback = false) {
     const auto& v = std::getenv(flag.c_str());
@@ -113,7 +113,7 @@ int main(int argc, char* const* argv)
 
     pipe_in = !isatty(fileno(stdin)) || std::getenv("DEBUG_SET_PIPE_IN");
     pipe_out = !isatty(fileno(stdout)) || std::getenv("DEBUG_SET_PIPE_OUT");
-    if (pipe_in || pipe_out) btc_logf = btc_logf_dummy;
+    if (pipe_in || pipe_out) aix_logf = aix_logf_dummy;
 
     cliargs ca;
     ca.add_option("help", 'h', no_arg);
@@ -126,7 +126,7 @@ int main(int argc, char* const* argv)
     ca.add_option("sig", 's', req_arg);
     ca.parse(argc, argv);
     quiet = ca.m.count('q') || pipe_in || pipe_out;
-    if (quiet) btc_logf = btc_logf_dummy;
+    if (quiet) aix_logf = aix_logf_dummy;
 
     if (ca.m.count('v')) {
         printf("tap (\"The Aixcoin Debugger Taproot Utility\") " VERSION() "\n");
@@ -141,21 +141,21 @@ int main(int argc, char* const* argv)
         fprintf(stderr, "The address prefix refers to the bech32m human readable part; this defaults to '%s'\n", DEFAULT_ADDR_PREFIX);
         return 0;
     }
-    btc_logf("tap " VERSION() " -- type `%s -h` for help\n", argv[0]);
+    aix_logf("tap " VERSION() " -- type `%s -h` for help\n", argv[0]);
     fprintf(stderr, "WARNING: This is experimental software. Do not use this with real aixcoin, or you will most likely lose them all. You have been w a r n e d.\n");
 
     if (!pipe_in) {
         // temporarily defaulting all to ON
-        if (checkenv("DEBUG_SIGHASH")) btc_sighash_logf = btc_logf_stderr;
-        if (checkenv("DEBUG_SIGNING", true)) btc_sign_logf = btc_logf_stderr;
-        if (checkenv("DEBUG_SEGWIT", true))  btc_segwit_logf = btc_logf_stderr;
-        if (checkenv("DEBUG_TAPROOT", true)) btc_taproot_logf = btc_logf_stderr;
-        btc_logf("LOG:");
-        if (btc_enabled(btc_sighash_logf)) btc_logf(" sighash");
-        if (btc_enabled(btc_sign_logf)) btc_logf(" sign");
-        if (btc_enabled(btc_segwit_logf)) btc_logf(" segwit");
-        if (btc_enabled(btc_taproot_logf)) btc_logf(" taproot");
-        btc_logf("\n");
+        if (checkenv("DEBUG_SIGHASH")) aix_sighash_logf = aix_logf_stderr;
+        if (checkenv("DEBUG_SIGNING", true)) aix_sign_logf = aix_logf_stderr;
+        if (checkenv("DEBUG_SEGWIT", true))  aix_segwit_logf = aix_logf_stderr;
+        if (checkenv("DEBUG_TAPROOT", true)) aix_taproot_logf = aix_logf_stderr;
+        aix_logf("LOG:");
+        if (aix_enabled(aix_sighash_logf)) aix_logf(" sighash");
+        if (aix_enabled(aix_sign_logf)) aix_logf(" sign");
+        if (aix_enabled(aix_segwit_logf)) aix_logf(" segwit");
+        if (aix_enabled(aix_taproot_logf)) aix_logf(" taproot");
+        aix_logf("\n");
     }
 
     Item premade_sig;
@@ -173,7 +173,7 @@ int main(int argc, char* const* argv)
         if (!instance.parse_input_transaction(ca.m['i'].c_str())) {
             abort("failed to parse input transaction");
         }
-        btc_logf("targeting transaction vin at index #%lld\n", instance.txin_index);
+        aix_logf("targeting transaction vin at index #%lld\n", instance.txin_index);
     }
 
     if (ca.m.count('k')) {
@@ -213,7 +213,7 @@ int main(int argc, char* const* argv)
     if (internal_pubkey.size() != 32) {
         abort("invalid internal pubkey %s -> %s: length %zu invalid (must be 32 bytes)", internal_pubkey_str.c_str(), HEXC(internal_pubkey), internal_pubkey.size());
     }
-    btc_logf("Internal pubkey: %s\n", HEXC(internal_pubkey));
+    aix_logf("Internal pubkey: %s\n", HEXC(internal_pubkey));
     uint256 internal_pubkey_u256 = uint256(internal_pubkey);
 
     size_t script_count = atol(ca.l[1]);
@@ -232,13 +232,13 @@ int main(int argc, char* const* argv)
     CScript taproot_inputs;                // manual variant
     size_t witness_stack_count = 0;
     if (have_txs && sargc == 0) {
-        btc_logf("- no spend arguments; TAPROOT mode\n");
+        aix_logf("- no spend arguments; TAPROOT mode\n");
         is_taproot = true;
     }
     if (sargc > 0) {
-        btc_logf("%zu spending argument%s present\n", sargc, sargc == 1 ? "" : "s");
+        aix_logf("%zu spending argument%s present\n", sargc, sargc == 1 ? "" : "s");
         // spend mode -- if 1 single argument, it's taproot, and the argument is the signature
-        btc_logf("- 1+ spend arguments; TAPSCRIPT mode\n");
+        aix_logf("- 1+ spend arguments; TAPSCRIPT mode\n");
         is_tapscript = true;
         spending_index = atol(ca.l[sai++]);
         if (spending_index >= script_count) {
@@ -248,12 +248,12 @@ int main(int argc, char* const* argv)
             if (std::string(ca.l[sai]) == "%SIG%") {
                 taproot_input_stack.push_back(PLACEHOLDER_SIGNATURE);
                 taproot_inputs << PLACEHOLDER_SIGNATURE;
-                btc_logf("  #%zu: <placeholder signature>\n", witness_stack_count);
+                aix_logf("  #%zu: <placeholder signature>\n", witness_stack_count);
             } else {
                 auto v = Value(ca.l[sai]).data_value();
                 taproot_input_stack.push_back(v);
                 taproot_inputs << v;
-                btc_logf("  #%zu: %s\n", witness_stack_count, HEXC(v));
+                aix_logf("  #%zu: %s\n", witness_stack_count, HEXC(v));
             }
             ++sai;
             ++witness_stack_count;
@@ -261,7 +261,7 @@ int main(int argc, char* const* argv)
     }
 
     std::vector<CScript> scripts;
-    btc_logf("%zu scripts:\n", script_count);
+    aix_logf("%zu scripts:\n", script_count);
     for (size_t i = 0; i < script_count; ++i) {
         Item scriptData = Value(ca.l[2 + i]).data_value();
         CScript script = CScript(scriptData.begin(), scriptData.end());
@@ -269,7 +269,7 @@ int main(int argc, char* const* argv)
             abort("invalid script #%zu: %s", i, HEXC(scriptData));
         }
         if (!quiet) {
-            btc_logf("- #%zu: %s\n", i, HEXC(script));
+            aix_logf("- #%zu: %s\n", i, HEXC(script));
         }
         scripts.emplace_back(script);
     }
@@ -286,12 +286,12 @@ int main(int argc, char* const* argv)
     TapLeaf* spending_leaf = nullptr;
     for (size_t i = 0; i < script_count; ++i) {
         TapLeaf* leaf = new TapLeaf(i, scripts[i]);
-        btc_logf("Script #%zu leaf hash = TapLeaf<<0xc0 || %s>>\n → %s\n", i, HexStr(scripts[i]).c_str(), HexStr(leaf->m_hash).c_str());
+        aix_logf("Script #%zu leaf hash = TapLeaf<<0xc0 || %s>>\n → %s\n", i, HexStr(scripts[i]).c_str(), HexStr(leaf->m_hash).c_str());
         if (is_tapscript && i == spending_index) spending_leaf = leaf;
         if (pending) {
             // we've got a pair
             branches.push_back(new TapBranch(pending, leaf));
-            btc_logf("Branch (%s, #%zu)\n → %s\n", pending->ToString().c_str(), i, HexStr(branches.back()->m_hash).c_str());
+            aix_logf("Branch (%s, #%zu)\n → %s\n", pending->ToString().c_str(), i, HexStr(branches.back()->m_hash).c_str());
             pending = nullptr;
         } else {
             pending = leaf;
@@ -306,7 +306,7 @@ int main(int argc, char* const* argv)
             TapNode* rightmost = branches.back();
             branches.pop_back();
             branches.push_back(new TapBranch(rightmost, pending));
-            btc_logf("Leftover node %s baked into right-most (last) tree %s\n → %s\n", pending->ToString().c_str(), rightmost->ToString().c_str(), HexStr(branches.back()->m_hash).c_str());
+            aix_logf("Leftover node %s baked into right-most (last) tree %s\n → %s\n", pending->ToString().c_str(), rightmost->ToString().c_str(), HexStr(branches.back()->m_hash).c_str());
         }
         pending = nullptr;
     }
@@ -318,7 +318,7 @@ int main(int argc, char* const* argv)
             TapNode* r = branches[i + 1];
             branches.erase(branches.begin() + i);
             branches[i] = new TapBranch(l, r);
-            btc_logf("Merged at #%zu: %s and %s = %s\n → %s\n", i, l->ToString().c_str(), r->ToString().c_str(), branches[i]->ToString().c_str(), HexStr(branches[i]->m_hash).c_str());
+            aix_logf("Merged at #%zu: %s and %s = %s\n → %s\n", i, l->ToString().c_str(), r->ToString().c_str(), branches[i]->ToString().c_str(), HexStr(branches[i]->m_hash).c_str());
         }
     }
 
@@ -329,14 +329,14 @@ int main(int argc, char* const* argv)
     // control block (if spending) -- note that we put the leaf version and negation bit in last, as we don't know if the pubkey was negated yet
     Item ctl = internal_pubkey;
     if (is_tapscript) {
-        btc_logf("Control object = (leaf), (internal pubkey = %s), ...\n", HEXC(internal_pubkey));
+        aix_logf("Control object = (leaf), (internal pubkey = %s), ...\n", HEXC(internal_pubkey));
         if (!spending_leaf) {
             abort("Internal error: Spending leaf was not derived (this is a bug; please report)");
         }
         if (spending_leaf->m_parent) {
             spending_leaf->m_parent->Prove(spending_leaf, ctl);
         }
-        btc_logf("... with proof -> %s\n", HEXC(ctl));
+        aix_logf("... with proof -> %s\n", HEXC(ctl));
     }
 
     // now TapTweak <pubkey> <root>
@@ -344,7 +344,7 @@ int main(int argc, char* const* argv)
     auto hasher = HasherTapTweak;
     hasher << internal_pubkey_u256 << root->m_hash;
     auto tweak = hasher.GetSHA256();
-    btc_logf("Tweak value = TapTweak(%s || %s) = %s\n", HEXC(internal_pubkey_u256), HEXC(root->m_hash), HEXC(tweak));
+    aix_logf("Tweak value = TapTweak(%s || %s) = %s\n", HEXC(internal_pubkey_u256), HEXC(root->m_hash), HEXC(tweak));
     // now tweak the pubkey
     secp256k1_xonly_pubkey pubkey;
     if (!secp256k1_xonly_pubkey_parse(secp256k1_context_sign, &pubkey, internal_pubkey.data())) {
@@ -364,7 +364,7 @@ int main(int argc, char* const* argv)
     }
     int is_even = serialized_pk[0] == 0x02;
     serialized_pk.erase(serialized_pk.begin(), serialized_pk.begin() + 1);
-    btc_logf("Tweaked pubkey = %s (%seven)\n", HEXC(serialized_pk), is_even ? "" : "not ");
+    aix_logf("Tweaked pubkey = %s (%seven)\n", HEXC(serialized_pk), is_even ? "" : "not ");
 
     // if we have a txin, we can now verify that our pubkey matches the pubkey in the output
     if (have_txs) {
@@ -376,7 +376,7 @@ int main(int argc, char* const* argv)
         if (cmp != serialized_pk) {
             abort("pubkey mismatch: input transaction's vout[%" PRId64 "].scriptPubKey %s does not end (%s) with our pubkey %s\n", instance.txin_vout_index, HEXC(spk), HEXC(cmp), HEXC(serialized_pk));
         }
-        btc_logf("Pubkey matches the scriptPubKey of the input transaction's output #%lld\n", instance.txin_vout_index);
+        aix_logf("Pubkey matches the scriptPubKey of the input transaction's output #%lld\n", instance.txin_vout_index);
     }
 
     Value v(serialized_pk);
@@ -394,14 +394,14 @@ int main(int argc, char* const* argv)
         if (!secp256k1_keypair_create(secp256k1_context_sign, &keypair, privkey.data())) {
             abort("failure: could not re-create keypair from tweaked privkey");
         }
-        btc_logf("tweaked privkey -> %s\n", HEXC(privkey));
+        aix_logf("tweaked privkey -> %s\n", HEXC(privkey));
 
         Value v(privkey);
         v.do_get_xpubkey();
         if (v.data_value() != serialized_pk) {
             abort("the provided private key has a corresponding public key %s\nhowever, the tweaked public key for this output is %s", HEXC(v.data), HEXC(serialized_pk));
         }
-        btc_logf("The given private key matches the tweaked public key\n");
+        aix_logf("The given private key matches the tweaked public key\n");
     }
 #endif
 
@@ -409,7 +409,7 @@ int main(int argc, char* const* argv)
         // we can now finally put in the leaf/negation bit in the control object
         uint8_t ctl_ln = is_even ? 0xc0 : 0xc1;
         ctl.insert(ctl.begin(), &ctl_ln, &ctl_ln + 1);
-        btc_logf("Final control object = %s\n", HEXC(ctl));
+        aix_logf("Final control object = %s\n", HEXC(ctl));
     }
 
     // if we have transaction data, replace the witness stack for the appropriate input
@@ -426,16 +426,16 @@ int main(int argc, char* const* argv)
             // append script to taproot inputs
             taproot_input_stack.push_back(spending_script);
             taproot_inputs << spending_script;
-            btc_logf("Adding selected script to taproot inputs: %s\n → %s\n", HEXC(scripts[spending_index]), HEXC(taproot_inputs));
+            aix_logf("Adding selected script to taproot inputs: %s\n → %s\n", HEXC(scripts[spending_index]), HEXC(taproot_inputs));
             ++witness_stack_count;
             // append control object
-            btc_logf("appending control object to taproot input stack: %s\n", HEXC(ctl));
+            aix_logf("appending control object to taproot input stack: %s\n", HEXC(ctl));
             taproot_input_stack.push_back(ctl);
             taproot_inputs << ctl;
             ++witness_stack_count;
-            btc_logf("Tapscript spending witness: [\n");
-            for (auto& x : taproot_input_stack) btc_logf(" \"%s\",\n", HEXC(x));
-            btc_logf("]\n");
+            aix_logf("Tapscript spending witness: [\n");
+            for (auto& x : taproot_input_stack) aix_logf(" \"%s\",\n", HEXC(x));
+            aix_logf("]\n");
         }
 
         CMutableTransaction mtx(*instance.tx);
@@ -451,7 +451,7 @@ int main(int argc, char* const* argv)
         instance.execdata.m_codeseparator_pos_init = true;
 
         const uint256 sighash = instance.calc_sighash();
-        btc_logf("sighash (little endian) = %s\n", HEXC(sighash));
+        aix_logf("sighash (little endian) = %s\n", HEXC(sighash));
 
         if (privkey.size()) {
             Item sig;
@@ -471,10 +471,10 @@ int main(int argc, char* const* argv)
             }
             uint256 pk;
             if (!secp256k1_xonly_pubkey_serialize(secp256k1_context_sign, pk.begin(), &pubkey)) assert(0);
-            btc_logf("sighash: %s\n", HEXC(sighash));
-            btc_logf("privkey: %s\n", HEXC(privkey));
-            btc_logf("pubkey: %s\n", HEXC(pk));
-            btc_logf("signature: %s\n", HEXC(sig));
+            aix_logf("sighash: %s\n", HEXC(sighash));
+            aix_logf("privkey: %s\n", HEXC(privkey));
+            aix_logf("pubkey: %s\n", HEXC(pk));
+            aix_logf("signature: %s\n", HEXC(sig));
             taproot_input_stack.insert(taproot_input_stack.begin(), sig);
 
             mtx.vin[instance.txin_index].scriptWitness.stack = taproot_input_stack;
@@ -499,7 +499,7 @@ static void GetRandBytes(unsigned char* buf, int num)
     // TODO: Make this more cross platform
     FILE* f = fopen("/dev/urandom", "rb");
     if (!f) {
-        abort("unable to open /dev/urandom for GetRandBytes(): sorry! btcdeb does not currently work on your operating system for signature signing\n");
+        abort("unable to open /dev/urandom for GetRandBytes(): sorry! aixdeb does not currently work on your operating system for signature signing\n");
         exit(1);
     }
     if (fread(buf, 1, num, f) != num) {

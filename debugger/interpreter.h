@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef AIXCOIN_BTCDEB_INTERPRETER_H
-#define AIXCOIN_BTCDEB_INTERPRETER_H
+#ifndef AIXCOIN_AIXDEB_INTERPRETER_H
+#define AIXCOIN_AIXDEB_INTERPRETER_H
 
 #include <debugger/see.h>
 #include <util/strencodings.h> // HexStr
@@ -49,8 +49,8 @@ static inline void _popstack(std::vector<valtype>& stack)
     stack.pop_back();
 }
 
-#define popstack(stack) do { btc_logf("\t\t<> POP  " #stack "\n"); _popstack(stack); } while (0)
-#define pushstack(stack, v) do { stack.push_back(v); btc_logf("\t\t<> PUSH " #stack " %s\n", HexStr(stack.at(stack.size()-1)).c_str()); } while (0)
+#define popstack(stack) do { aix_logf("\t\t<> POP  " #stack "\n"); _popstack(stack); } while (0)
+#define pushstack(stack, v) do { stack.push_back(v); aix_logf("\t\t<> PUSH " #stack " %s\n", HexStr(stack.at(stack.size()-1)).c_str()); } while (0)
 
 struct TaprootCommitmentEnv {
     enum class State : uint8_t {
@@ -104,4 +104,4 @@ bool StepScript(InterpreterEnv& env);
 bool ContinueScript(InterpreterEnv& env);
 bool RewindScript(InterpreterEnv& env);
 
-#endif // AIXCOIN_BTCDEB_INTERPRETER_H
+#endif // AIXCOIN_AIXDEB_INTERPRETER_H

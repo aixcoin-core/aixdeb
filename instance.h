@@ -1,5 +1,5 @@
-#ifndef included_btcdeb_instance_h_
-#define included_btcdeb_instance_h_
+#ifndef included_aixdeb_instance_h_
+#define included_aixdeb_instance_h_
 
 #include <debugger/interpreter.h>
 #include <util/strencodings.h>
@@ -93,4 +93,4 @@ public:
     uint256 calc_sighash();
 };
 
-#endif // included_btcdeb_instance_h_
+#endif // included_aixdeb_instance_h_

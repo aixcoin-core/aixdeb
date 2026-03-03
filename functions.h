@@ -1,5 +1,5 @@
-#ifndef included_btcdeb_functions_h_
-#define included_btcdeb_functions_h_
+#ifndef included_aixdeb_functions_h_
+#define included_aixdeb_functions_h_
 
 #include <vector>
 #include <debugger/interpreter.h>
@@ -30,4 +30,4 @@ int print_tce(TaprootCommitmentEnv* tce, bool raw = false);
 
 void print_dualstack();
 
-#endif // included_btcdeb_functions_h_
+#endif // included_aixdeb_functions_h_

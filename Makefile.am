@@ -24,7 +24,7 @@ EXTRA_LIBRARIES += \
   $(LIBAIXCOIN) \
   $(LIBKERL)
 
-bin_PROGRAMS = btcdeb btcc test-btcdeb tap
+bin_PROGRAMS = aixdeb aixc test-aixdeb tap
 noinst_PROGRAMS =
 
 # debugger #
@@ -119,19 +119,19 @@ libkerl_a_CPPFLAGS = $(AM_CPPFLAGS) -Ikerl
 libkerl_a_CFLAGS = -std=gnu99
 libkerl_a_SOURCES = kerl/kerl.c kerl/kerl.h
 
-# btcdeb binary #
-btcdeb_SOURCES = \
+# aixdeb binary #
+aixdeb_SOURCES = \
 	instance.h \
 	instance.cpp \
 	functions.h \
 	functions.cpp \
-	btcdeb.cpp \
+	aixdeb.cpp \
 	cliargs.h
-btcdeb_CPPFLAGS = $(AM_CPPFLAGS)
-btcdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-btcdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
+aixdeb_CPPFLAGS = $(AM_CPPFLAGS)
+aixdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+aixdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
 
-btcdeb_LDADD = \
+aixdeb_LDADD = \
 	$(LIBAIXCOIN_DEB) \
 	$(LIBAIXCOIN) \
 	$(LIBSECP256K1) \
@@ -155,19 +155,19 @@ tap_LDADD = \
   $(LIBSECP256K1) \
   $(LIBKERL)
 
-# btcc binary #
-btcc_SOURCES = \
-	btcc.cpp
-btcc_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
-btcc_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+# aixc binary #
+aixc_SOURCES = \
+	aixc.cpp
+aixc_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
+aixc_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
-btcc_LDADD = \
+aixc_LDADD = \
 	$(LIBAIXCOIN_DEB) \
 	$(LIBAIXCOIN) \
 	$(LIBSECP256K1)
 
-# test-btcdeb binary #
-test_btcdeb_SOURCES = \
+# test-aixdeb binary #
+test_aixdeb_SOURCES = \
 	instance.h \
 	instance.cpp \
 	functions.h \
@@ -175,14 +175,14 @@ test_btcdeb_SOURCES = \
 	test/catch.hpp \
 	test/catch.cpp \
 	test/signing.cpp \
-	test/test-btcdeb.cpp \
+	test/test-aixdeb.cpp \
 	test/utils.cpp \
 	test/value.cpp
-test_btcdeb_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
-test_btcdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-test_btcdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
+test_aixdeb_CPPFLAGS = $(AM_CPPFLAGS) $(AIXCOIN_INCLUDES)
+test_aixdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+test_aixdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
 
-test_btcdeb_LDADD = \
+test_aixdeb_LDADD = \
 	$(LIBAIXCOIN_DEB) \
 	$(LIBAIXCOIN) \
 	$(LIBKERL) \

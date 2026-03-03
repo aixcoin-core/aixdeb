@@ -21,7 +21,7 @@ base_template: &BASE_TEMPLATE
 
 global_task_template: &GLOBAL_TASK_TEMPLATE
   << : *BASE_TEMPLATE
-  timeout_in: 60m  # https://cirrus-ci.org/faq/#instance-timed-out (btcdeb: down from 120m)
+  timeout_in: 60m  # https://cirrus-ci.org/faq/#instance-timed-out (aixdeb: down from 120m)
   container:
     # https://cirrus-ci.org/faq/#are-there-any-limits
     # Each project has 16 CPU in total, assign 2 to each container, so that 8 tasks run in parallel
@@ -42,7 +42,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
 compute_credits_template: &CREDITS_TEMPLATE
   # https://cirrus-ci.org/pricing/#compute-credits
   # Only use credits for pull requests to the main repo
-  use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'aixcoin-core/btcdeb' && $CIRRUS_PR != ""
+  use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'aixcoin-core/aixdeb' && $CIRRUS_PR != ""
 
 # task:
 #   name: 'ARM [buster]'
@@ -54,7 +54,7 @@ compute_credits_template: &CREDITS_TEMPLATE
 #       - ENABLE_DANGEROUS: 1
 #       - ENABLE_DANGEROUS: ""
 #     FILE_ENV: "./ci/test/00_setup_env_arm.sh"
-# TODO: ARM is giving "/tmp/cirrus-ci-build/ci/scratch/out/arm-linux-gnueabihf/bin/test-btcdeb_orig: Invalid ELF image for this architecture"
+# TODO: ARM is giving "/tmp/cirrus-ci-build/ci/scratch/out/arm-linux-gnueabihf/bin/test-aixdeb_orig: Invalid ELF image for this architecture"
 
 # task:
 #   name: 'Win64 [bionic]'

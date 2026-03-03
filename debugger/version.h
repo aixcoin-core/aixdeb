@@ -7,13 +7,13 @@
 
 #include <config/aixcoin-config.h>
 
-#ifdef BTCDEB_STR
-#error "BTCDEB_STR already defined"
+#ifdef AIXDEB_STR
+#error "AIXDEB_STR already defined"
 #endif
 
-#define BTCDEB_STR(s) #s
+#define AIXDEB_STR(s) #s
 
-#define _VERSION(maj, min, rev) BTCDEB_STR(maj) "." BTCDEB_STR(min) "." BTCDEB_STR(rev)
+#define _VERSION(maj, min, rev) AIXDEB_STR(maj) "." AIXDEB_STR(min) "." AIXDEB_STR(rev)
 #define VERSION() _VERSION(CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, CLIENT_VERSION_REVISION)
 
 #endif // AIXCOIN_DEBUGGER_VERSION_H

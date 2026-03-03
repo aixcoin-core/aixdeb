@@ -6,7 +6,7 @@ ENV BUILD_DEPS autoconf file gcc libc-dev make g++ pkgconf re2c git libtool auto
 
 RUN apk add --update --no-cache --virtual .build-deps $BUILD_DEPS
 
-WORKDIR /tmp/btcdeb
+WORKDIR /tmp/aixdeb
 
 COPY . .
 

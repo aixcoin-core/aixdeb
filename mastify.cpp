@@ -250,7 +250,7 @@ int main(int argc, const char** argv)
     int argi = 1;
     bool preprocessed = false;
     bool legacy = false;
-    bool btcdeb = false;
+    bool aixdeb = false;
     bool trimmable = false;
     bool multisig = false;
     int multisig_required;
@@ -258,8 +258,8 @@ int main(int argc, const char** argv)
         const char* v = argv[argi];
         if (!strcmp(v, "--legacy")) {
             legacy = true;
-        } else if (!strcmp(v, "--btcdeb")) {
-            btcdeb = true;
+        } else if (!strcmp(v, "--aixdeb")) {
+            aixdeb = true;
         } else if (!strcmp(v, "--trimmable")) {
             trimmable = true;
         } else if (!strncmp(v, "--multisig=", strlen("--multisig="))) {
@@ -272,8 +272,8 @@ int main(int argc, const char** argv)
         argi++;
     }
     bool fast = !legacy;
-    piping = btcdeb || !isatty(fileno(stdin));
-    if (piping) btc_logf = btc_logf_dummy;
+    piping = aixdeb || !isatty(fileno(stdin));
+    if (piping) aix_logf = aix_logf_dummy;
 
     std::vector<Value> args;
     std::vector<CodePath> paths;
@@ -332,7 +332,7 @@ int main(int argc, const char** argv)
         current_path = 0;
         selected_path = args.size() > 0;
         if (args.size()) {
-            btc_logf = btc_logf_dummy;
+            aix_logf = aix_logf_dummy;
             std::vector<valtype> stack;
             BaseSignatureChecker checker;
             ScriptError error;
@@ -349,7 +349,7 @@ int main(int argc, const char** argv)
                 // update path
                 update_path(current_path, paths, env->opcode, env->vfExec);
             }
-            btc_logf("resulting path: %zu\n", current_path);
+            aix_logf("resulting path: %zu\n", current_path);
             delete env;
         }
     }
@@ -413,7 +413,7 @@ int main(int argc, const char** argv)
         } else {
             std::pair<std::vector<uint256>, uint32_t> r = ComputeFastMerkleBranch(hashes, pos);
             root = ComputeFastMerkleRootFromBranch(hashes[pos], r.first, r.second);
-            btc_logf("root: %s\n", HexStr(root).c_str());
+            aix_logf("root: %s\n", HexStr(root).c_str());
             branch.swap(r.first);
             path = r.second;
             std::vector<MerkleTree> subtrees(hashes.size());
@@ -461,7 +461,7 @@ int main(int argc, const char** argv)
                 printf("proof: %s\n", HexStr(proof).c_str());
                 printf("unlocking script: %s %s OP_%d OP_MERKLEBRANCHVERIFY 2DROP DROP\n", repeat("TOALTSTACK", params).c_str(), HexStr(root).c_str(), 2 + preprocessed);
             }
-            if (!piping || btcdeb) {
+            if (!piping || aixdeb) {
                 printf(piping
                     ? "%s20%s5%db36d75\n"
                     : "- script (hex): %s20%s5%db36d75\n",
@@ -469,7 +469,7 @@ int main(int argc, const char** argv)
                     HexStr(root).c_str(),
                     2 + preprocessed
                 );
-                btc_logf("stack:\n");
+                aix_logf("stack:\n");
             }
             printf(piping ? "%s\n" : "- item #1:  %s\n", leaves[pos].hex_str().c_str());
             printf(piping ? "%s\n" : "- item #2:  %s\n", HexStr(proof).c_str());

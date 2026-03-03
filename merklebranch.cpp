@@ -11,12 +11,12 @@ bool piping = false;
 int main(int argc, const char** argv)
 {
     if (argc < 2) {
-        fprintf(stderr, "syntax: %s [--position=<index>] [--preprocessed] [--legacy] [--btcdeb] <leaf> [<leaf 2> [<leaf 3> [...]]]\n", argv[0]);
+        fprintf(stderr, "syntax: %s [--position=<index>] [--preprocessed] [--legacy] [--aixdeb] <leaf> [<leaf 2> [<leaf 3> [...]]]\n", argv[0]);
         fprintf(stderr,
             " --position=<index> (integer, optional) The index of the element to construct a proof for. If not specified, only the Merkle root is calculated.\n"
             " --preprocessed     (boolean, optional, default=false) Whether the leaves list contains data to be hashed (false), or already-processed hashes (true). If true, the leaves must consist entirely of 64-byte hex-encoded hashes.\n"
             " --legacy           (boolean, optional, default=false) Whether fast Merkle trees, or the original CVE-2012-2459 vulnerable, Satoshi-authored Merkle trees are to be used (--legacy will use the old variant).\n"
-            " --btcdeb           (boolean, optional) Format output for piping into btcdeb (only useful with --position set).\n"
+            " --aixdeb           (boolean, optional) Format output for piping into aixdeb (only useful with --position set).\n"
         );
         fprintf(stderr, "e.g.: %s 1 '[FROMALTSTACK 1 EQUALVERIFY]' '[FROMALTSTACK 2 EQUALVERIFY]'\n", argv[0]);
         fprintf(stderr, "prints root, branches, path, and proof (only root when --position is not used)\n");
@@ -27,7 +27,7 @@ int main(int argc, const char** argv)
     int pos = -1;
     bool preprocessed = false;
     bool legacy = false;
-    bool btcdeb = false;
+    bool aixdeb = false;
     while (argi < argc && strlen(argv[argi]) > 7 && argv[argi][0] == '-') {
         const char* v = argv[argi];
         if (!strncmp(v, "--position=", strlen("--position="))) {
@@ -36,8 +36,8 @@ int main(int argc, const char** argv)
             preprocessed = true;
         } else if (!strcmp(v, "--legacy")) {
             legacy = true;
-        } else if (!strcmp(v, "--btcdeb")) {
-            btcdeb = true;
+        } else if (!strcmp(v, "--aixdeb")) {
+            aixdeb = true;
         } else {
             fprintf(stderr, "unknown argument: %s\n", v);
             return -1;
@@ -45,8 +45,8 @@ int main(int argc, const char** argv)
         argi++;
     }
     bool fast = !legacy;
-    piping = btcdeb || !isatty(fileno(stdin));
-    if (piping) btc_logf = btc_logf_dummy;
+    piping = aixdeb || !isatty(fileno(stdin));
+    if (piping) aix_logf = aix_logf_dummy;
 
     std::vector<Value> leaves = Value::parse_args(argc, argv, argi);
     std::vector<uint256> hashes;
@@ -84,13 +84,13 @@ int main(int argc, const char** argv)
         } else {
             root = ComputeFastMerkleRoot(hashes);
         }
-        if (!btcdeb) {
-            btc_logf("root: %s\n", HexStr(root).c_str());
+        if (!aixdeb) {
+            aix_logf("root: %s\n", HexStr(root).c_str());
         }
         if (!piping) {
             printf("proposal (1 parameter): TOALTSTACK %s OP_%d OP_MERKLEBRANCHVERIFY 2DROP DROP\n", HexStr(root).c_str(), 2 + preprocessed);
         }
-        if (!piping || btcdeb) {
+        if (!piping || aixdeb) {
             printf(piping ? "6b20%s5%db36d75" : "proposal 1 hex:         6b20%s5%db36d75\n", HexStr(root).c_str(), 2 + preprocessed);
         }
         return 0;
@@ -153,14 +153,14 @@ int main(int argc, const char** argv)
             printf("unlocking proposal (1 parameter):\n");
             printf("- script:       TOALTSTACK %s OP_%d OP_MERKLEBRANCHVERIFY 2DROP DROP\n", HexStr(root).c_str(), 2 + preprocessed);
         }
-        if (!piping || btcdeb) {
+        if (!piping || aixdeb) {
             printf(piping
                 ? "6b20%s5%db36d75\n"
                 : "- script (hex): 6b20%s5%db36d75\n",
                 HexStr(root).c_str(),
                 2 + preprocessed
             );
-            btc_logf("stack:\n");
+            aix_logf("stack:\n");
         }
         if (!piping) printf("- item #1:       %s\n", argv[argi + pos]);
         printf(piping ? "%s\n" : "- item #1 (hex): %s\n", leaves[pos].hex_str().c_str());

@@ -34,7 +34,7 @@ Tapscript lets us split the above into any number of script paths. We then put t
 2. OP_SHA256 preimage_hash OP_EQUALVERIFY <pubkey_bob> OP_CHECKSIG
 ```
 
-Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside btcdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real aixcoin; if you're here, you probably know enough to warrant enabling it).
+Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside aixdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real aixcoin; if you're here, you probably know enough to warrant enabling it).
 
 Anyway, you can do that or just use mine (the sha256 of 'alice', 'bob', and 'internal' respectively):
 
@@ -217,13 +217,13 @@ Resulting transaction: 0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b729
 Worth noting:
 * it confirms that the pubkey matches the scriptPubKey of the input transaction's output. If this check fails, you are probably trying to spend the wrong input transaction, or index.
 * it notes that the sighash is a 'taproot' sighash; if this fails with UNKNOWN sighash, it means tap was not able to determine what kind of spend this was
-* there is a sighash `28e88d1...` expressed in little endian (Aixcoin Core would reverse this value when displaying); having this value means we can use a separate tool (e.g. btcdeb) to generate a signature without trusting the `tap` utility
+* there is a sighash `28e88d1...` expressed in little endian (Aixcoin Core would reverse this value when displaying); having this value means we can use a separate tool (e.g. aixdeb) to generate a signature without trusting the `tap` utility
 * since we did not provide a signature or a private key, `tap` added a placeholder signature to the transaction (0001020304... 64 bytes worth). We would replace that with our actual signature, if we signed this manually.
 
 There are 3 ways to complete this transaction: (1) manually, (2) by providing a signature to `tap`, or (3) by providing the internal private key to `tap`.
 
 * The manual approach was described above.
-* To provide a signature, generate it (e.g. `tf sign_schnorr <sighash> <privkey>` in btcdeb), and then pass it to `tap` via the `--sig=<hex>` argument.
+* To provide a signature, generate it (e.g. `tf sign_schnorr <sighash> <privkey>` in aixdeb), and then pass it to `tap` via the `--sig=<hex>` argument.
 * To have `tap` sign directly, hand it the private key using the `--privkey=<key>` argument (this can be a WIF string, or a hex encoded private key).
 
 We will do the third alternative here.
@@ -313,13 +313,13 @@ $ bcli testmempoolaccept '["0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc7
 ]
 ```
 
-We can also run this through btcdeb to see more details on how this transaction is composed:
+We can also run this through aixdeb to see more details on how this transaction is composed:
 
 ```Bash
-$ btcdeb --txin=$txin --tx=0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e8346820140742c016b800a80daa3fbc744642189b838e858ea4b63461ec23751457cd2f8d6a9e304e069d07bc60fc351dff7e5599b11309731b4dc5eea4f5fd6560dec0be200000000
-btcdeb 0.4.22 -- type `./btcdeb -h` for start up options
+$ aixdeb --txin=$txin --tx=0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e8346820140742c016b800a80daa3fbc744642189b838e858ea4b63461ec23751457cd2f8d6a9e304e069d07bc60fc351dff7e5599b11309731b4dc5eea4f5fd6560dec0be200000000
+aixdeb 0.4.22 -- type `./aixdeb -h` for start up options
 LOG: sign segwit taproot
-notice: btcdeb has gotten quieter; use --verbose if necessary (this message is temporary)
+notice: aixdeb has gotten quieter; use --verbose if necessary (this message is temporary)
 input tx index = 0; tx input vout = 0; value = 100000
 got witness stack of size 1
 34 bytes (v0=P2WSH, v1=taproot/tapscript)
@@ -333,14 +333,14 @@ script                                                           |              
 a5ba0871796eb49fb4caa6bf78e675b9455e2d66e751676420f8381d5dda8951 | 742c016b800a80daa3fbc744642189b838e858ea4b63461ec23751457cd2f8d...
 OP_CHECKSIG                                                      |
 #0000 a5ba0871796eb49fb4caa6bf78e675b9455e2d66e751676420f8381d5dda8951
-btcdeb> step
+aixdeb> step
 		<> PUSH stack a5ba0871796eb49fb4caa6bf78e675b9455e2d66e751676420f8381d5dda8951
 script                                                           |                                                             stack
 -----------------------------------------------------------------+-------------------------------------------------------------------
 OP_CHECKSIG                                                      |   a5ba0871796eb49fb4caa6bf78e675b9455e2d66e751676420f8381d5dda8951
                                                                  | 742c016b800a80daa3fbc744642189b838e858ea4b63461ec23751457cd2f8d...
 #0001 OP_CHECKSIG
-btcdeb>
+aixdeb>
 EvalChecksig() sigversion=2
 GenericTransactionSignatureChecker::CheckSchnorrSignature(64 len sig, 32 len pubkey, sigversion=2)
   sig         = 742c016b800a80daa3fbc744642189b838e858ea4b63461ec23751457cd2f8d6a9e304e069d07bc60fc351dff7e5599b11309731b4dc5eea4f5fd6560dec0be2
@@ -356,7 +356,7 @@ SignatureHashSchnorr(in_pos=0, hash_type=00)
 script                                                           |                                                             stack
 -----------------------------------------------------------------+-------------------------------------------------------------------
                                                                  |                                                                 01
-btcdeb>
+aixdeb>
 ```
 
 Signature verification succeeded. You may want to compare the values to those given by `tap` earlier, such as the sighash (which is here given Aixcoin Core style, i.e. big endian).
@@ -378,7 +378,7 @@ OP_CHECKSIG
 We need:
 * The preimage, which when sha256-hashed, results in the preimage hash `6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333` as seen in the script. Luckily we made that so we've got it: `107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f`
 * Bob's private key. We have that one too: `81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9`.
-* The tagged hash for Alice's script, which we need to construct the merkle proof that our script above was actually a part of the deal when we both signed up for this. We got this one, since we know Alice's script beforehand, and we calculated it earlier to be `c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9`, the result of `tf tagged-hash TapLeaf c0 prefix_compact_size(029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac)` in btcdeb.
+* The tagged hash for Alice's script, which we need to construct the merkle proof that our script above was actually a part of the deal when we both signed up for this. We got this one, since we know Alice's script beforehand, and we calculated it earlier to be `c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9`, the result of `tf tagged-hash TapLeaf c0 prefix_compact_size(029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac)` in aixdeb.
 * The internal pubkey; we have this one: 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5; both Alice and Bob know it; note that we don't necessarily know the private key, since this was probably generated using MuSig or something, and requires all participants.
 
 When doing a tapscript spend, a control object is needed, which proves that the script we are spending is actually a part of the input. We also need to actually reveal the script we chose (index starts at 0, so second script has index 1). The `tap` utility does this for us -- all we have to do is select the script we want to spend, and provide the parameters for it.
@@ -463,7 +463,7 @@ Resulting transaction: 0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b729
 Let's see how this transaction fairs when we debug it.
 
 ```Bash
-$ btcdeb --txin=$txin --tx=0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e8346820340000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f45a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac41c1f30544d6009c8d8d94f5d030b2e844b1a3ca036255161c479db1cca5b374dd1cc81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c900000000
+$ aixdeb --txin=$txin --tx=0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e8346820340000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f45a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac41c1f30544d6009c8d8d94f5d030b2e844b1a3ca036255161c479db1cca5b374dd1cc81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c900000000
 [..]
 8 op script loaded. type `help` for usage information
 script                                                             |                                                             stack
@@ -486,7 +486,7 @@ The script starts up with the taproot commitment part. We also see that Bob's sc
 Note: `k` starts out as `632c8632...` which is equal to the Script #1 leaf hash, `TapLeaf<<0xc0 || a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac>>` which equals `632c8632b4f29c6291416e23135cf78ecb82e525788ea5ed6483e3c6ce943b42`.
 
 ```Bash
-btcdeb> step
+aixdeb> step
 - looping over path (0..0)
   - 0: node = c8...; taproot control node match -> k first
   (TapBranch(TapLeaf(0xc0 || a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac) || Span<33,32>=c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9))
@@ -511,7 +511,7 @@ After one iteration (`i → 1`), we end up with `k` equal to the branch (#0, #1)
 The next step is calling the `CheckTapTweak()` method in the public key class, which takes the internal pubkey `p` and tweak+internal pubkey `k` and ensures that the tweaked pubkey `q` satisfies `tweak(p, k) = q`, where `tweak()` is defined as in BIP340-342. (The third argument, 1, is the parity bit.)
 
 ```Bash
-btcdeb>
+aixdeb>
 - looping over path (0..0)
 - q.CheckTapTweak(p, k, 1) == success
 script                                                             |                                                             stack
@@ -527,7 +527,7 @@ OP_CHECKSIG                                                        |
 At this point we have Bob's script loaded up, and the tapscript commitment phase is complete. From here on, it's just like the good old usual. This won't work, of course, but let's see what happens when we step through:
 
 ```Bash
-btcdeb> step
+aixdeb> step
 		<> POP  stack
 		<> PUSH stack 1c4672a4c6713bcb9495abba712be251bbeff723d79f001f81e5170b1d1627a5
 script                                                             |                                                             stack
@@ -537,7 +537,7 @@ OP_EQUALVERIFY                                                     |
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   |
 OP_CHECKSIG                                                        |
 #0003 OP_SHA256
-btcdeb>
+aixdeb>
 		<> PUSH stack 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
 script                                                             |                                                             stack
 -------------------------------------------------------------------+-------------------------------------------------------------------
@@ -545,7 +545,7 @@ OP_EQUALVERIFY                                                     |   6c60f404f
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   |   1c4672a4c6713bcb9495abba712be251bbeff723d79f001f81e5170b1d1627a5
 OP_CHECKSIG                                                        |
 #0004 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
-btcdeb>
+aixdeb>
 		<> POP  stack
 		<> POP  stack
 		<> PUSH stack
@@ -572,12 +572,12 @@ signature: 54d5ee309be92f531d62449d8ef82b216f1e5b6229aaef918a78c26ce6dd66d57c523
 Resulting transaction: 0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e834682044054d5ee309be92f531d62449d8ef82b216f1e5b6229aaef918a78c26ce6dd66d57c523202b4650302667723f63dd5a87b2370ada51e08de0eccb27a80450ff9bf20107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f45a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac41c1f30544d6009c8d8d94f5d030b2e844b1a3ca036255161c479db1cca5b374dd1cc81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c900000000
 ```
 
-This time we get a real signature (54d5..) and a resulting transaction. Let's run that transaction through btcdeb first of all (step through the taproot commitment stuff until we get to Bob's script):
+This time we get a real signature (54d5..) and a resulting transaction. Let's run that transaction through aixdeb first of all (step through the taproot commitment stuff until we get to Bob's script):
 
 ```Bash
-$ btcdeb --txin=$txin --tx=0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e834682044054d5ee309be92f531d62449d8ef82b216f1e5b6229aaef918a78c26ce6dd66d57c523202b4650302667723f63dd5a87b2370ada51e08de0eccb27a80450ff9bf20107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f45a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac41c1f30544d6009c8d8d94f5d030b2e844b1a3ca036255161c479db1cca5b374dd1cc81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c900000000
+$ aixdeb --txin=$txin --tx=0200000000010171f2f89c07c3b58c7b0cf3654ba049d28bbcc76b7298f41c17e7b1a3149040ec0000000000ffffffff01905f010000000000160014ceb2d28afdcad1ae0fc2cf81cb929ba29e834682044054d5ee309be92f531d62449d8ef82b216f1e5b6229aaef918a78c26ce6dd66d57c523202b4650302667723f63dd5a87b2370ada51e08de0eccb27a80450ff9bf20107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f45a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac41c1f30544d6009c8d8d94f5d030b2e844b1a3ca036255161c479db1cca5b374dd1cc81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c900000000
 [...]
-btcdeb> step
+aixdeb> step
 script                                                             |                                                             stack
 -------------------------------------------------------------------+-------------------------------------------------------------------
 OP_SHA256                                                          |   107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f
@@ -586,13 +586,13 @@ OP_EQUALVERIFY                                                     |
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   |
 OP_CHECKSIG                                                        |
 #0002 CheckTapTweak
-btcdeb>
+aixdeb>
 ```
 
 This looks better! Let's see how it fares:
 
 ```Bash
-btcdeb> step
+aixdeb> step
 		<> POP  stack
 		<> PUSH stack 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
 script                                                             |                                                             stack
@@ -602,7 +602,7 @@ OP_EQUALVERIFY                                                     | 54d5ee309be
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   |
 OP_CHECKSIG                                                        |
 #0003 OP_SHA256
-btcdeb>
+aixdeb>
 		<> PUSH stack 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
 script                                                             |                                                             stack
 -------------------------------------------------------------------+-------------------------------------------------------------------
@@ -610,7 +610,7 @@ OP_EQUALVERIFY                                                     |   6c60f404f
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   |   6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
 OP_CHECKSIG                                                        | 54d5ee309be92f531d62449d8ef82b216f1e5b6229aaef918a78c26ce6dd66d...
 #0004 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
-btcdeb>
+aixdeb>
 		<> POP  stack
 		<> POP  stack
 		<> PUSH stack 01
@@ -620,14 +620,14 @@ script                                                             |            
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   | 54d5ee309be92f531d62449d8ef82b216f1e5b6229aaef918a78c26ce6dd66d...
 OP_CHECKSIG                                                        |
 #0005 OP_EQUALVERIFY
-btcdeb>
+aixdeb>
 		<> PUSH stack 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10
 script                                                             |                                                             stack
 -------------------------------------------------------------------+-------------------------------------------------------------------
 OP_CHECKSIG                                                        |   4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10
                                                                    | 54d5ee309be92f531d62449d8ef82b216f1e5b6229aaef918a78c26ce6dd66d...
 #0006 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10
-btcdeb>
+aixdeb>
 EvalChecksig() sigversion=3
 Eval Checksig Tapscript
 - sig must not be empty: ok
@@ -697,6 +697,6 @@ $ bcli getrawtransaction 068f9bc8ce2312568dc78a779b8231555e6f05fb170dbbe9a6a30d5
 $
 ```
 
-And we're done! Hope it was helpful. Please submit pull requests or issues with improvements to this document and/or btcdeb.
+And we're done! Hope it was helpful. Please submit pull requests or issues with improvements to this document and/or aixdeb.
 
 If you want to do this all manually by hand to really get your hands dirty, you can redo this exercise (with slightly different values) over [here](tapscript-example.md).

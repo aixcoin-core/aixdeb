@@ -1,12 +1,12 @@
 From 713a838ff2584294b39fe88a50c28169753f3de2 Mon Sep 17 00:00:00 2001
 From: Karl-Johan Alm <karljohan-alm@garage.co.jp>
 Date: Mon, 17 Aug 2020 11:58:51 +0900
-Subject: [PATCH] btcdeb on Aixcoin Core 0.20.99 ("current master")
+Subject: [PATCH] aixdeb on Aixcoin Core 0.20.99 ("current master")
 
 ---
  Makefile.am            |    1 +
  base58.cpp             |    1 -
- btcdeb.cpp             |    6 +-
+ aixdeb.cpp             |    6 +-
  compat/cpuid.h         |   24 +
  functions.cpp          |   22 +-
  hash.cpp               |    1 +
@@ -48,10 +48,10 @@ index 9b2946e..c6637bb 100644
  
  #include <assert.h>
  #include <string.h>
-diff --git a/btcdeb.cpp b/btcdeb.cpp
+diff --git a/aixdeb.cpp b/aixdeb.cpp
 index 63a82d0..4df7fd7 100644
---- a/btcdeb.cpp
-+++ b/btcdeb.cpp
+--- a/aixdeb.cpp
++++ b/aixdeb.cpp
 @@ -255,9 +255,9 @@ int main(int argc, char* const* argv)
              char* pbuf = buf;
              pbuf += sprintf(pbuf, "#%04d ", i);
@@ -178,7 +178,7 @@ index a2f2b44..e2a8f00 100644
  int _e_combine_pubkeys(Value&& pv) { pv.do_combine_pubkeys(); pv.println(); return 0; }
  int _e_tweak_pubkey(Value&& pv) { pv.do_tweak_pubkey(); pv.println(); return 0; }
  int _e_addr_to_spk(Value&& pv) { pv.do_addr_to_spk(); pv.println(); return 0; }
-@@ -313,7 +313,7 @@ static const btcdeb_tfun tffp[] = {
+@@ -313,7 +313,7 @@ static const aixdeb_tfun tffp[] = {
      _e_b32e,
      _e_b32d,
      _e_verify_sig,
@@ -1834,7 +1834,7 @@ index 39feb4c..39417dd 100644
 +            // ([sig ...] num_of_signatures [pubkey ...] num_of_pubkeys -- bool)
 +
 +            int i = 1;
-+            btc_sign_logf("stack has %zu entries [require 1]\n", stack.size());
++            aix_sign_logf("stack has %zu entries [require 1]\n", stack.size());
 +            if ((int)stack.size() < i)
 +                return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 +
@@ -1849,7 +1849,7 @@ index 39feb4c..39417dd 100644
 +            // With SCRIPT_VERIFY_NULLFAIL, this is used for cleanup if operation fails.
 +            int ikey2 = nKeysCount + 2;
 +            i += nKeysCount;
-+            btc_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
++            aix_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
 +            if ((int)stack.size() < i)
 +                return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 +
@@ -1858,7 +1858,7 @@ index 39feb4c..39417dd 100644
 +                return set_error(serror, SCRIPT_ERR_SIG_COUNT);
 +            int isig = ++i;
 +            i += nSigsCount;
-+            btc_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
++            aix_sign_logf("stack has %zu entries [require %d]\n", stack.size(), i);
 +            if ((int)stack.size() < i)
 +                return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 +
@@ -1876,34 +1876,34 @@ index 39feb4c..39417dd 100644
                  }
 -                break;
 +            }
-+            btc_sign_logf("scriptCode = %s\n", HexStr(scriptCode).c_str());
++            aix_sign_logf("scriptCode = %s\n", HexStr(scriptCode).c_str());
  
 -                case OP_CODESEPARATOR:
 -                {
 -                    // If SCRIPT_VERIFY_CONST_SCRIPTCODE flag is set, use of OP_CODESEPARATOR is rejected in pre-segwit
 -                    // script, even in an unexecuted branch (this is checked above the opcode case statement).
 +            bool fSuccess = true;
-+            btc_sign_logf("looping for multisig\n");
++            aix_sign_logf("looping for multisig\n");
 +            while (fSuccess && nSigsCount > 0)
 +            {
-+                btc_sign_logf("loop: sigs = %d, keys = %d\n", nSigsCount, nKeysCount);
++                aix_sign_logf("loop: sigs = %d, keys = %d\n", nSigsCount, nKeysCount);
 +                valtype& vchSig    = stacktop(-isig);
 +                valtype& vchPubKey = stacktop(-ikey);
 +                std::string sig_str = HexStr(vchSig);
 +                std::string pub_str = HexStr(vchPubKey);
-+                btc_sign_logf("- got sig %s\n", sig_str.c_str());
-+                btc_sign_logf("- got key %s\n", pub_str.c_str());
++                aix_sign_logf("- got sig %s\n", sig_str.c_str());
++                aix_sign_logf("- got key %s\n", pub_str.c_str());
 +                bool fOk;
 +                if (pretend_valid_pubkeys.count(vchPubKey)) {
 +                    fOk = pretend_valid_map.count(vchSig) && pretend_valid_map.at(vchSig) == vchPubKey;
-+                    if (!fOk) btc_sign_logf("- [mock] wrong pubkey for sig; marking as failed\n");
++                    if (!fOk) aix_sign_logf("- [mock] wrong pubkey for sig; marking as failed\n");
 +                } else {
 +                    // Note how this makes the exact order of pubkey/signature evaluation
 +                    // distinguishable by CHECKMULTISIG NOT if the STRICTENC flag is set.
 +                    // See the script_(in)valid tests for details.
 +                    if (!CheckSignatureEncoding(vchSig, flags, serror) || !CheckPubKeyEncoding(vchPubKey, flags, sigversion, serror)) {
 +                        // serror is set
-+                        btc_sign_logf("! CheckSignatureEncoding() or CheckPubKeyEncoding() failed!\n");
++                        aix_sign_logf("! CheckSignatureEncoding() or CheckPubKeyEncoding() failed!\n");
 +                        return false;
 +                    }
  
@@ -1913,7 +1913,7 @@ index 39feb4c..39417dd 100644
 +                    fOk = checker.CheckSig(vchSig, vchPubKey, scriptCode, sigversion);
                  }
 -                break;
-+                btc_sign_logf("- sig check %s\n", fOk ? "succeeded" : "failed");
++                aix_sign_logf("- sig check %s\n", fOk ? "succeeded" : "failed");
  
 -                case OP_CHECKSIG:
 -                case OP_CHECKSIGVERIFY:
@@ -1934,7 +1934,7 @@ index 39feb4c..39417dd 100644
 +                if (nSigsCount > nKeysCount)
 +                    fSuccess = false;
 +            }
-+            btc_sign_logf("loop ended in %s state\n", fSuccess ? "successful" : "failure");
++            aix_sign_logf("loop ended in %s state\n", fSuccess ? "successful" : "failure");
 +
 +            // Clean up stack of actual arguments
 +            while (i-- > 1) {
@@ -1957,7 +1957,7 @@ index 39feb4c..39417dd 100644
 +            if (stack.size() < 1)
 +                return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
 +            if ((flags & SCRIPT_VERIFY_NULLDUMMY) && stacktop(-1).size()) {
-+                printf("\n* * * * * * *\n\nHint: with Segwit activation, the OP_CHECKMULTISIG extra argument must be set to the empty push value (0x). If you are experimenting with older scripts, you may run into a 'Dummy CHECKMULTISIG argument must be zero' error. To move past this, you need to modify the verification flags, disabling the NULLDUMMY flag specifically. I.e. call btcdeb again with -f\"-NULLDUMMY\"\n\n* * * * * * *\n\n");
++                printf("\n* * * * * * *\n\nHint: with Segwit activation, the OP_CHECKMULTISIG extra argument must be set to the empty push value (0x). If you are experimenting with older scripts, you may run into a 'Dummy CHECKMULTISIG argument must be zero' error. To move past this, you need to modify the verification flags, disabling the NULLDUMMY flag specifically. I.e. call aixdeb again with -f\"-NULLDUMMY\"\n\n* * * * * * *\n\n");
 +                return set_error(serror, SCRIPT_ERR_SIG_NULLDUMMY);
 +            }
 +            popstack(stack);
@@ -2149,9 +2149,9 @@ index 39feb4c..39417dd 100644
              if (opcode == OP_CODESEPARATOR)
                  nCodeSeparators++;
          }
-+        btc_sign_logf(" << scriptCode.size()=%zu - nCodeSeparators=%d\n", scriptCode.size(), nCodeSeparators);
++        aix_sign_logf(" << scriptCode.size()=%zu - nCodeSeparators=%d\n", scriptCode.size(), nCodeSeparators);
          ::WriteCompactSize(s, scriptCode.size() - nCodeSeparators);
-+        btc_sign_logf(" << script:"); print_vec(scriptCode, btc_sign_logf); btc_sign_logf("\n");
++        aix_sign_logf(" << script:"); print_vec(scriptCode, aix_sign_logf); aix_sign_logf("\n");
          it = itBegin;
          while (scriptCode.GetOp(it, opcode)) {
              if (opcode == OP_CODESEPARATOR) {
@@ -2162,10 +2162,10 @@ index 39feb4c..39417dd 100644
 -        if (fAnyoneCanPay)
 +        if (fAnyoneCanPay) {
              nInput = nIn;
-+            btc_sign_logf("    (fAnyoneCanPay: nInput = nIn)\n");
++            aix_sign_logf("    (fAnyoneCanPay: nInput = nIn)\n");
 +        }
          // Serialize the prevout
-+        btc_sign_logf(" << txTo.vin[nInput=%d].prevout = %s\n", nInput, txTo.vin[nInput].prevout.ToString().c_str());
++        aix_sign_logf(" << txTo.vin[nInput=%d].prevout = %s\n", nInput, txTo.vin[nInput].prevout.ToString().c_str());
          ::Serialize(s, txTo.vin[nInput].prevout);
          // Serialize the script
 -        if (nInput != nIn)
@@ -2173,20 +2173,20 @@ index 39feb4c..39417dd 100644
              // Blank out other inputs' signatures
              ::Serialize(s, CScript());
 -        else
-+            btc_sign_logf(" << [empty script] (reason: nInput != nIn)\n");
++            aix_sign_logf(" << [empty script] (reason: nInput != nIn)\n");
 +        } else {
-+            btc_sign_logf("(SerializeScriptCode)\n");
++            aix_sign_logf("(SerializeScriptCode)\n");
              SerializeScriptCode(s);
 +        }
          // Serialize the nSequence
 -        if (nInput != nIn && (fHashSingle || fHashNone))
 +        if (nInput != nIn && (fHashSingle || fHashNone)) {
              // let the others update at will
-+            btc_sign_logf(" << sequence = 0 (nInput != nIn && (fHashSingle || fHashNone))\n");
++            aix_sign_logf(" << sequence = 0 (nInput != nIn && (fHashSingle || fHashNone))\n");
              ::Serialize(s, (int)0);
 -        else
 +        } else {
-+            btc_sign_logf(" << txTo.vin[nInput].nSequence = %u [0x%x]\n", txTo.vin[nInput].nSequence, txTo.vin[nInput].nSequence);
++            aix_sign_logf(" << txTo.vin[nInput].nSequence = %u [0x%x]\n", txTo.vin[nInput].nSequence, txTo.vin[nInput].nSequence);
              ::Serialize(s, txTo.vin[nInput].nSequence);
 +        }
      }
@@ -2196,32 +2196,32 @@ index 39feb4c..39417dd 100644
      /** Serialize txTo */
      template<typename S>
      void Serialize(S &s) const {
-+        btc_sign_logf("Serializing transaction\n");
++        aix_sign_logf("Serializing transaction\n");
          // Serialize nVersion
-+        btc_sign_logf(" << txTo.nVersion (%08x)\n", txTo.nVersion);
++        aix_sign_logf(" << txTo.nVersion (%08x)\n", txTo.nVersion);
          ::Serialize(s, txTo.nVersion);
          // Serialize vin
          unsigned int nInputs = fAnyoneCanPay ? 1 : txTo.vin.size();
-+        btc_sign_logf(" << nInputs = %d [compact]\n", nInputs);
++        aix_sign_logf(" << nInputs = %d [compact]\n", nInputs);
          ::WriteCompactSize(s, nInputs);
 -        for (unsigned int nInput = 0; nInput < nInputs; nInput++)
 -             SerializeInput(s, nInput);
 +        for (unsigned int nInput = 0; nInput < nInputs; nInput++) {
-+            btc_sign_logf("(serialize input %d)\n", nInput);
++            aix_sign_logf("(serialize input %d)\n", nInput);
 +            SerializeInput(s, nInput);
 +        }
          // Serialize vout
          unsigned int nOutputs = fHashNone ? 0 : (fHashSingle ? nIn+1 : txTo.vout.size());
-+        btc_sign_logf(" << nOutputs = %d [compact]\n", nOutputs);
++        aix_sign_logf(" << nOutputs = %d [compact]\n", nOutputs);
          ::WriteCompactSize(s, nOutputs);
 -        for (unsigned int nOutput = 0; nOutput < nOutputs; nOutput++)
 -             SerializeOutput(s, nOutput);
 +        for (unsigned int nOutput = 0; nOutput < nOutputs; nOutput++) {
-+            btc_sign_logf("(serialize output %d)\n", nOutput);
++            aix_sign_logf("(serialize output %d)\n", nOutput);
 +            SerializeOutput(s, nOutput);
 +        }
          // Serialize nLockTime
-+        btc_sign_logf(" << txTo.nLockTime = %d [0x%x]\n", txTo.nLockTime, txTo.nLockTime);
++        aix_sign_logf(" << txTo.nLockTime = %d [0x%x]\n", txTo.nLockTime, txTo.nLockTime);
          ::Serialize(s, txTo.nLockTime);
      }
  };
@@ -2229,10 +2229,10 @@ index 39feb4c..39417dd 100644
  uint256 GetPrevoutHash(const T& txTo)
  {
      CHashWriter ss(SER_GETHASH, 0);
-+    btc_sign_logf("- generating prevout hash from %zu ins\n", txTo.vin.size());
++    aix_sign_logf("- generating prevout hash from %zu ins\n", txTo.vin.size());
      for (const auto& txin : txTo.vin) {
          ss << txin.prevout;
-+        btc_sign_logf("[+] %s\n", txin.prevout.ToString().c_str());
++        aix_sign_logf("[+] %s\n", txin.prevout.ToString().c_str());
      }
      return ss.GetHash();
  }
@@ -2240,11 +2240,11 @@ index 39feb4c..39417dd 100644
  template <class T>
  uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
  {
-+    btc_sign_logf("SignatureHash(nIn=%d, nHashType=%02x, amount=%lld)\n", nIn, nHashType, amount);
++    aix_sign_logf("SignatureHash(nIn=%d, nHashType=%02x, amount=%lld)\n", nIn, nHashType, amount);
      assert(nIn < txTo.vin.size());
  
      if (sigversion == SigVersion::WITNESS_V0) {
-+        btc_sign_logf("- sigversion == SIGVERSION_WITNESS_V0\n");
++        aix_sign_logf("- sigversion == SIGVERSION_WITNESS_V0\n");
          uint256 hashPrevouts;
          uint256 hashSequence;
          uint256 hashOutputs;
@@ -2252,70 +2252,70 @@ index 39feb4c..39417dd 100644
  
          if (!(nHashType & SIGHASH_ANYONECANPAY)) {
              hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutHash(txTo);
-+            btc_sign_logf("  hashPrevouts = %s\n", hashPrevouts.ToString().c_str());
++            aix_sign_logf("  hashPrevouts = %s\n", hashPrevouts.ToString().c_str());
          }
  
          if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
              hashSequence = cacheready ? cache->hashSequence : GetSequenceHash(txTo);
-+            btc_sign_logf("  hashSequence = %s\n", hashSequence.ToString().c_str());
++            aix_sign_logf("  hashSequence = %s\n", hashSequence.ToString().c_str());
          }
  
  
          if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
              hashOutputs = cacheready ? cache->hashOutputs : GetOutputsHash(txTo);
-+            btc_sign_logf("  hashOutputs [!single] = %s\n", hashOutputs.ToString().c_str());
++            aix_sign_logf("  hashOutputs [!single] = %s\n", hashOutputs.ToString().c_str());
          } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nIn < txTo.vout.size()) {
              CHashWriter ss(SER_GETHASH, 0);
              ss << txTo.vout[nIn];
              hashOutputs = ss.GetHash();
-+            btc_sign_logf("  hashOutputs [single] = %s\n", hashOutputs.ToString().c_str());
++            aix_sign_logf("  hashOutputs [single] = %s\n", hashOutputs.ToString().c_str());
          }
  
-+        HashWriter::debug = btc_enabled(btc_sighash_logf);
++        HashWriter::debug = aix_enabled(aix_sighash_logf);
          CHashWriter ss(SER_GETHASH, 0);
          // Version
-+        btc_sign_logf("SERIALIZING:\n");
++        aix_sign_logf("SERIALIZING:\n");
          ss << txTo.nVersion;
-+        btc_sign_logf(" << txTo.nVersion = %d\n", txTo.nVersion);
++        aix_sign_logf(" << txTo.nVersion = %d\n", txTo.nVersion);
          // Input prevouts/nSequence (none/all, depending on flags)
          ss << hashPrevouts;
-+        btc_sign_logf(" << hashPrevouts\n");
++        aix_sign_logf(" << hashPrevouts\n");
          ss << hashSequence;
-+        btc_sign_logf(" << hashSequence\n");
++        aix_sign_logf(" << hashSequence\n");
          // The input being signed (replacing the scriptSig with scriptCode + amount)
          // The prevout may already be contained in hashPrevout, and the nSequence
          // may already be contain in hashSequence.
          ss << txTo.vin[nIn].prevout;
-+        btc_sign_logf(" << txTo.vin[nIn=%d].prevout = %s\n", nIn, txTo.vin[nIn].prevout.ToString().c_str());
++        aix_sign_logf(" << txTo.vin[nIn=%d].prevout = %s\n", nIn, txTo.vin[nIn].prevout.ToString().c_str());
          ss << scriptCode;
-+        btc_sign_logf(" << scriptCode\n");
++        aix_sign_logf(" << scriptCode\n");
          ss << amount;
-+        btc_sign_logf(" << amount = %" PRId64 "\n", amount);
++        aix_sign_logf(" << amount = %" PRId64 "\n", amount);
          ss << txTo.vin[nIn].nSequence;
-+        btc_sign_logf(" << txTo.vin[nIn].nSequence = %u (0x%x)\n", txTo.vin[nIn].nSequence, txTo.vin[nIn].nSequence);
++        aix_sign_logf(" << txTo.vin[nIn].nSequence = %u (0x%x)\n", txTo.vin[nIn].nSequence, txTo.vin[nIn].nSequence);
          // Outputs (none/one/all, depending on flags)
          ss << hashOutputs;
-+        btc_sign_logf(" << hashOutputs\n");
++        aix_sign_logf(" << hashOutputs\n");
          // Locktime
          ss << txTo.nLockTime;
-+        btc_sign_logf(" << txTo.nLockTime = %d\n", txTo.nLockTime);
++        aix_sign_logf(" << txTo.nLockTime = %d\n", txTo.nLockTime);
          // Sighash type
          ss << nHashType;
 -
 -        return ss.GetHash();
-+        btc_sign_logf(" << nHashType = %02x\n", nHashType);
++        aix_sign_logf(" << nHashType = %02x\n", nHashType);
 +        HashWriter::debug = false;
 +        uint256 sighash = ss.GetHash();
-+        btc_sign_logf("RESULTING HASH = %s\n", sighash.ToString().c_str());
++        aix_sign_logf("RESULTING HASH = %s\n", sighash.ToString().c_str());
 +        return sighash;
      }
-+    btc_sign_logf("- sigversion = SIGVERSION_BASE (non-segwit style)\n");
++    aix_sign_logf("- sigversion = SIGVERSION_BASE (non-segwit style)\n");
  
      // Check for invalid use of SIGHASH_SINGLE
      if ((nHashType & 0x1f) == SIGHASH_SINGLE) {
          if (nIn >= txTo.vout.size()) {
              //  nOut out of range
-+            btc_sign_logf("  nIn >= txTo.vout.size() [nOut out of range]\n");
++            aix_sign_logf("  nIn >= txTo.vout.size() [nOut out of range]\n");
              return UINT256_ONE();
          }
      }
@@ -2323,7 +2323,7 @@ index 39feb4c..39417dd 100644
      CTransactionSignatureSerializer<T> txTmp(txTo, scriptCode, nIn, nHashType);
  
      // Serialize and hash
-+    HashWriter::debug = btc_enabled(btc_sighash_logf);
++    HashWriter::debug = aix_enabled(aix_sighash_logf);
      CHashWriter ss(SER_GETHASH, 0);
      ss << txTmp << nHashType;
 +    HashWriter::debug = false;
@@ -2334,23 +2334,23 @@ index 39feb4c..39417dd 100644
  bool GenericTransactionSignatureChecker<T>::VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& pubkey, const uint256& sighash) const
  {
 -    return pubkey.Verify(sighash, vchSig);
-+    btc_sign_logf("  pubkey.Verify(sig="); print_vec(vchSig, btc_sign_logf); btc_sign_logf(", sighash=%s):\n", sighash.ToString().c_str());
++    aix_sign_logf("  pubkey.Verify(sig="); print_vec(vchSig, aix_sign_logf); aix_sign_logf(", sighash=%s):\n", sighash.ToString().c_str());
 +    bool res = pubkey.Verify(sighash, vchSig);
-+    btc_sign_logf("  result: %s\n", res ? "success" : "FAILURE");
++    aix_sign_logf("  result: %s\n", res ? "success" : "FAILURE");
 +    return res;
  }
  
  template <class T>
  bool GenericTransactionSignatureChecker<T>::CheckSig(const std::vector<unsigned char>& vchSigIn, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const
  {
-+    btc_sign_logf("GenericTransactionSignatureChecker::CheckSig(%zu len sig, %zu len pubkey, sigversion=%d)\n", vchSigIn.size(), vchPubKey.size(), sigversion);
-+    btc_sign_logf("  sig         = "); print_vec(vchSigIn, btc_sign_logf); btc_sign_logf("\n");
-+    btc_sign_logf("  pub key     = "); print_vec(vchPubKey, btc_sign_logf); btc_sign_logf("\n");
-+    btc_sign_logf("  script code = "); print_vec(scriptCode, btc_sign_logf); btc_sign_logf("\n");
++    aix_sign_logf("GenericTransactionSignatureChecker::CheckSig(%zu len sig, %zu len pubkey, sigversion=%d)\n", vchSigIn.size(), vchPubKey.size(), sigversion);
++    aix_sign_logf("  sig         = "); print_vec(vchSigIn, aix_sign_logf); aix_sign_logf("\n");
++    aix_sign_logf("  pub key     = "); print_vec(vchPubKey, aix_sign_logf); aix_sign_logf("\n");
++    aix_sign_logf("  script code = "); print_vec(scriptCode, aix_sign_logf); aix_sign_logf("\n");
      CPubKey pubkey(vchPubKey);
 -    if (!pubkey.IsValid())
 +    if (!pubkey.IsValid()) {
-+        btc_sign_logf("- failed: pubkey is not valid\n");
++        aix_sign_logf("- failed: pubkey is not valid\n");
          return false;
 +    }
  
@@ -2358,19 +2358,19 @@ index 39feb4c..39417dd 100644
      std::vector<unsigned char> vchSig(vchSigIn);
 -    if (vchSig.empty())
 +    if (vchSig.empty()) {
-+        btc_sign_logf("- failed: signature is empty\n");
++        aix_sign_logf("- failed: signature is empty\n");
          return false;
 +    }
      int nHashType = vchSig.back();
      vchSig.pop_back();
-+    btc_sign_logf("  hash type   = %02x (%s)\n", nHashType, hashtype_str(nHashType).c_str());
++    aix_sign_logf("  hash type   = %02x (%s)\n", nHashType, hashtype_str(nHashType).c_str());
  
      uint256 sighash = SignatureHash(scriptCode, *txTo, nIn, nHashType, amount, sigversion, this->txdata);
-+    btc_sign_logf("  sighash     = %s\n", sighash.ToString().c_str());
++    aix_sign_logf("  sighash     = %s\n", sighash.ToString().c_str());
  
 -    if (!VerifySignature(vchSig, pubkey, sighash))
 +    if (!VerifySignature(vchSig, pubkey, sighash)) {
-+        btc_sign_logf("- failed: VerifySignature() failed\n");
++        aix_sign_logf("- failed: VerifySignature() failed\n");
          return false;
 +    }
  

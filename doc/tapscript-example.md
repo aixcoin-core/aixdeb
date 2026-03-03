@@ -34,7 +34,7 @@ Tapscript lets us split the above into any number of script paths. We then put t
 2. OP_SHA256 preimage_hash OP_EQUALVERIFY <pubkey_bob> OP_CHECKSIG
 ```
 
-Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside btcdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real aixcoin; if you're here, you probably know enough to warrant enabling it).
+Before we jump into that, let's make three key-pairs; Alice's keys, Bob's keys, and the internal key. You can make these inside aixdeb if you ran `./configure` with the `--enable-dangerous` flag (it's called dangerous because clueless people might be fooled into giving evil people private keys to real aixcoin; if you're here, you probably know enough to warrant enabling it).
 
 Anyway, you can do that or just use mine (the sha256 of 'alice', 'bob', and 'internal' respectively):
 
@@ -75,11 +75,11 @@ When we generate our output (i.e. commit to our scripts), we begin by creating t
 
 Let's start by generating the `TapLeaf` entries.
 
-Using `btcc`, we can get the script encoded variant of both. (Note: I am assuming you did `make install` on btcdeb; if not, prefix all commands with `./` and be sure that you're in the `btcdeb` folder)
+Using `aixc`, we can get the script encoded variant of both. (Note: I am assuming you did `make install` on aixdeb; if not, prefix all commands with `./` and be sure that you're in the `aixdeb` folder)
 ```Bash
-$ btcc 144 OP_CHECKSEQUENCEVERIFY OP_DROP 9997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803be OP_CHECKSIG
+$ aixc 144 OP_CHECKSEQUENCEVERIFY OP_DROP 9997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803be OP_CHECKSIG
 029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac
-$ btcc OP_SHA256 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333 OP_EQUALVERIFY 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10 OP_CHECKSIG
+$ aixc OP_SHA256 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333 OP_EQUALVERIFY 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10 OP_CHECKSIG
 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
 ```
 
@@ -87,25 +87,25 @@ a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9d
 
 We now generate the `TapLeaf` hashes:
 ```Bash
-$ btcdeb
+$ aixdeb
 [..]
-btcdeb> tf tagged-hash TapLeaf c0 prefix_compact_size(029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac)
+aixdeb> tf tagged-hash TapLeaf c0 prefix_compact_size(029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac)
 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9
 # ↑ this is the commitment hash for script 1, and this provided if we want to spend script 2
-btcdeb> tf tagged-hash TapLeaf c0 prefix_compact_size(a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac)
+aixdeb> tf tagged-hash TapLeaf c0 prefix_compact_size(a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac)
 632c8632b4f29c6291416e23135cf78ecb82e525788ea5ed6483e3c6ce943b42
 # ↑ this is the commitment hash for script 2, and this is provided if we want to spend script 1
 # *** NOTE: c814... is greater than 632c..., so we have to swap the hashes when we put them into the
 #           branch in the next step
-btcdeb> tf tagged-hash TapBranch 632c8632b4f29c6291416e23135cf78ecb82e525788ea5ed6483e3c6ce943b42 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9
+aixdeb> tf tagged-hash TapBranch 632c8632b4f29c6291416e23135cf78ecb82e525788ea5ed6483e3c6ce943b42 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9
 41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b
 # ↑ this is the root of our merkle tree, before we do the tweak
-btcdeb> tf tagged-hash TapTweak 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b
+aixdeb> tf tagged-hash TapTweak 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b
 0b0e6981ce6cac74d055d0e4c25e5b4455a083b3217761327867f26460e0a776
 # ↑ this is the tweak; we now need to tweak our pubkey (note: the tweak is actually multiplied by the
 #   generator to generate a point that is added to the pubkey; this is done under the hood by the
 #   secp256k1 library, but is worth noting; you should not do this yourself)
-btcdeb> tf taproot-tweak-pubkey 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 0b0e6981ce6cac74d055d0e4c25e5b4455a083b3217761327867f26460e0a776
+aixdeb> tf taproot-tweak-pubkey 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 0b0e6981ce6cac74d055d0e4c25e5b4455a083b3217761327867f26460e0a776
 03f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
 # We got a uneven (03) pubkey f128a8...0c
 ```
@@ -115,7 +115,7 @@ Note: the pubkey we got was uneven (03). Later when we do a Tapscript spend, we 
 We now have our pubkey f128a8...0c. We can bech32-encode it to get an actual address. (Note: bech32-encode is temporarily hard-coded to use regtest version 1 addresses. This will be made configurable.)
 
 ```Bash
-btcdeb> tf bech32m-encode f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
+aixdeb> tf bech32m-encode f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
 "bcrt1p7y52329xxmse7q9gq9542rldlsntdawaqnvntmz99z224kfcauxqag4w9y"
 ```
 
@@ -221,12 +221,12 @@ Then the locktime (last 8 zeroes), and we have a starting point:
 
 > 020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 01 40 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f 00000000
 
-Hint: You can *keep* the spacing for easier tweaking/overview, by wrapping the argument in quotes in the call to btcdeb.
+Hint: You can *keep* the spacing for easier tweaking/overview, by wrapping the argument in quotes in the call to aixdeb.
 
 We're now ready to do our first attempt at spending our transaction. Our signature is crap, but we'll get to that.
 
 ```Bash
-$ btcdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 01 40 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f 00000000'
+$ aixdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 01 40 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f 00000000'
 got segwit transaction 275f90dcfc8b6c81ea54ee6e7648b3f628ee411ef11d1fdaf9c0074b04dbfef9:
 CTransaction(hash=275f90dcfc, ver=2, vin.size=1, vout.size=1, nLockTime=0)
     CTxIn(COutPoint(303d28a45a, 0), scriptSig=)
@@ -254,19 +254,19 @@ OP_CHECKSIG                                                      |
 #0000 f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
 ```
 
-OK, btcdeb is able to parse the transaction and gives us the starting point in the very simple program. You should know that in reality, there *is* no program at all; the signature check is done upon recognizing the TAPROOT spend pattern (single object on the stack), but btcdeb bakes it into a `<push> CHECKSIG` quasi script.
+OK, aixdeb is able to parse the transaction and gives us the starting point in the very simple program. You should know that in reality, there *is* no program at all; the signature check is done upon recognizing the TAPROOT spend pattern (single object on the stack), but aixdeb bakes it into a `<push> CHECKSIG` quasi script.
 
 Let's step until the end and see how our "signature" does:
 
 ```
-btcdeb> step
+aixdeb> step
 		<> PUSH stack f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
 script                                                           |                                                             stack
 -----------------------------------------------------------------+-------------------------------------------------------------------
 OP_CHECKSIG                                                      |   f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
                                                                  | 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0...
 #0001 OP_CHECKSIG
-btcdeb>
+aixdeb>
 GenericTransactionSignatureChecker::CheckSchnorrSignature(64 len sig, 32 len pubkey, sigversion=2)
   sig         = 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f
   pub key     = f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
@@ -285,27 +285,27 @@ script                                                           |              
 #0001 OP_CHECKSIG
 ```
 
-OK yeah that didn't go too well. However, btcdeb has now given us a vital clue. The only one we need, in fact, to complete this transaction: the signature hash (abbreviate "sighash") -- it is `bf775fc048a7693eee19e5f51f2160b7b4f52b640499cd2b9e46a4be17b51f1a` (big endian, so we need to *reverse* it), and you can see it above a few lines above the "result: FAILURE" part. With that, and our privkey (which we created at the start) tweaked with that tweak we created, we can now create an *actual* signature!
+OK yeah that didn't go too well. However, aixdeb has now given us a vital clue. The only one we need, in fact, to complete this transaction: the signature hash (abbreviate "sighash") -- it is `bf775fc048a7693eee19e5f51f2160b7b4f52b640499cd2b9e46a4be17b51f1a` (big endian, so we need to *reverse* it), and you can see it above a few lines above the "result: FAILURE" part. With that, and our privkey (which we created at the start) tweaked with that tweak we created, we can now create an *actual* signature!
 
 ```Bash
-btcdeb> tf taproot-tweak-seckey 3bed2cb3a3acf7b6a8ef408420cc682d5520e26976d354254f528c965612054f 0b0e6981ce6cac74d055d0e4c25e5b4455a083b3217761327867f26460e0a776
+aixdeb> tf taproot-tweak-seckey 3bed2cb3a3acf7b6a8ef408420cc682d5520e26976d354254f528c965612054f 0b0e6981ce6cac74d055d0e4c25e5b4455a083b3217761327867f26460e0a776
 (pubkey verified: 03f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c)
 cf213cce2abfb4be27669060a191f315bb2e7e3059ecad48e8e7c45adb04e368
 # we can verify that this is correct by using get-xpubkey and comparing this to our pubkey we made before
-btcdeb> tf get-xpubkey cf213cce2abfb4be27669060a191f315bb2e7e3059ecad48e8e7c45adb04e368
+aixdeb> tf get-xpubkey cf213cce2abfb4be27669060a191f315bb2e7e3059ecad48e8e7c45adb04e368
 (pk_parity = 1)
 f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
-btcdeb> tf sign_schnorr reverse(bf775fc048a7693eee19e5f51f2160b7b4f52b640499cd2b9e46a4be17b51f1a) cf213cce2abfb4be27669060a191f315bb2e7e3059ecad48e8e7c45adb04e368
+aixdeb> tf sign_schnorr reverse(bf775fc048a7693eee19e5f51f2160b7b4f52b640499cd2b9e46a4be17b51f1a) cf213cce2abfb4be27669060a191f315bb2e7e3059ecad48e8e7c45adb04e368
 b36beb8bf7bac92bd3b457a254476c1cf75059fbabc00eb64ccf4e6b462f41ad1dc24615e699bfa1287b82baffc42263bbefc4e2b6e8fc96e6f1fbe5adafcff1
 ```
 
 We can now replace our `00010203...` thingie with the above and try again.
 
 ```Bash
-$ btcdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 01 40 b36beb8bf7bac92bd3b457a254476c1cf75059fbabc00eb64ccf4e6b462f41ad1dc24615e699bfa1287b82baffc42263bbefc4e2b6e8fc96e6f1fbe5adafcff1 00000000'
+$ aixdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 01 40 b36beb8bf7bac92bd3b457a254476c1cf75059fbabc00eb64ccf4e6b462f41ad1dc24615e699bfa1287b82baffc42263bbefc4e2b6e8fc96e6f1fbe5adafcff1 00000000'
 [...]
 #0001 OP_CHECKSIG
-btcdeb>
+aixdeb>
 GenericTransactionSignatureChecker::CheckSchnorrSignature(64 len sig, 32 len pubkey, sigversion=2)
   sig         = b36beb8bf7bac92bd3b457a254476c1cf75059fbabc00eb64ccf4e6b462f41ad1dc24615e699bfa1287b82baffc42263bbefc4e2b6e8fc96e6f1fbe5adafcff1
   pub key     = f128a8a8a636e19f00a80169550fedfc26b6f5dd04d935ec452894aad938ef0c
@@ -354,7 +354,7 @@ OP_CHECKSIG
 We need:
 * The preimage, which when sha256-hashed, results in the preimage hash `6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333` as seen in the script. Luckily we made that so we've got it: `107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f`
 * Bob's private key. We have that one too: `81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9`.
-* The tagged hash for Alice's script, which we need to construct the merkle proof that our script above was actually a part of the deal when we both signed up for this. We got this one, since we know Alice's script beforehand, and we calculated it earlier to be `c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9`, the result of `tf tagged-hash TapLeaf c0 prefix_compact_size(029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac)` in btcdeb.
+* The tagged hash for Alice's script, which we need to construct the merkle proof that our script above was actually a part of the deal when we both signed up for this. We got this one, since we know Alice's script beforehand, and we calculated it earlier to be `c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9`, the result of `tf tagged-hash TapLeaf c0 prefix_compact_size(029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac)` in aixdeb.
 * The internal pubkey; we have this one: 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5; both Alice and Bob know it; note that we don't necessarily know the private key, since this was probably generated using MuSig or something, and requires all participants.
 
 To do the tapscript spend, we need to provide a "control object" which describes the path leading to our particular script. The two possible control objects are:
@@ -379,12 +379,12 @@ and our script, when we replace the witness stuff above with the new data (prefi
 > 020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 02 45 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
 41 c1 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9 00000000
 
-(Note that you can use the `prefix-compact-size` transform inside btcdeb to generate the size prefixed variants, e.g. `tf prefix-compact-size c15bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9` inside btcdeb gives `41c15bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9`.)
+(Note that you can use the `prefix-compact-size` transform inside aixdeb to generate the size prefixed variants, e.g. `tf prefix-compact-size c15bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9` inside aixdeb gives `41c15bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9`.)
 
 ```Bash
-$ btcdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 02 45 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
+$ aixdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 02 45 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
 41 c1 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9 00000000'
-btcdeb 0.4.22 -- type `btcdeb -h` for start up options
+aixdeb 0.4.22 -- type `aixdeb -h` for start up options
 got segwit transaction 275f90dcfc8b6c81ea54ee6e7648b3f628ee411ef11d1fdaf9c0074b04dbfef9:
 CTransaction(hash=275f90dcfc, ver=2, vin.size=1, vout.size=1, nLockTime=0)
     CTxIn(COutPoint(303d28a45a, 0), scriptSig=)
@@ -432,7 +432,7 @@ OP_CHECKSIG                                                        |
 The tapscript commitment succeeded. Yay! Now as you can see we still need to add the inputs that satisfy the script itself. We will be adding those on the left hand side of the program || control object blob in the witness. Generally speaking, tapscript spending witness stack looks like: `<argN> ... <arg2> <arg1> <script> <control object>`.
 
 * Firstly, the preimage which, when hashed, turns into the above: 107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f
-* Second, the signature for the script. We don't have one, yet, so let's just put 64 random bytes in and have btcdeb tell us the sighash.
+* Second, the signature for the script. We don't have one, yet, so let's just put 64 random bytes in and have aixdeb tell us the sighash.
 
 Flipped around, since args are opposite order:
 
@@ -440,9 +440,9 @@ Flipped around, since args are opposite order:
 41 c1 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9 00000000
 
 ```Bash
-$ btcdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 04 40 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f 20 107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f 45 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
+$ aixdeb --verbose --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 04 40 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f 20 107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f 45 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
 41 c1 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9 00000000'
-btcdeb 0.4.22 -- type `btcdeb -h` for start up options
+aixdeb 0.4.22 -- type `aixdeb -h` for start up options
 LOG: signing segwit taproot
 got segwit transaction 275f90dcfc8b6c81ea54ee6e7648b3f628ee411ef11d1fdaf9c0074b04dbfef9:
 CTransaction(hash=275f90dcfc, ver=2, vin.size=1, vout.size=1, nLockTime=0)
@@ -486,7 +486,7 @@ OP_EQUALVERIFY                                                     |
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   | 
 OP_CHECKSIG                                                        | 
 #0000 Branch: c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9
-btcdeb> step
+aixdeb> step
 - looping over path (0..0)
   - 0: node = c8...; taproot control node match -> k first
   (TapBranch(TapLeaf(0xc0 || a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac) || Span<33,32>=c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9))
@@ -504,7 +504,7 @@ OP_EQUALVERIFY                                                     |
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   | 
 OP_CHECKSIG                                                        | 
 #0001 Tweak: 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5
-btcdeb> 
+aixdeb> 
 - looping over path (0..0)
 - q.CheckTapTweak(p, k, 1) == success
 script                                                             |                                                             stack 
@@ -515,7 +515,7 @@ OP_EQUALVERIFY                                                     |
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   | 
 OP_CHECKSIG                                                        | 
 #0002 CheckTapTweak
-btcdeb> 
+aixdeb> 
 		<> POP  stack
 		<> PUSH stack 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
 script                                                             |                                                             stack 
@@ -525,7 +525,7 @@ OP_EQUALVERIFY                                                     | 00010203040
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   | 
 OP_CHECKSIG                                                        | 
 #0003 OP_SHA256
-btcdeb> 
+aixdeb> 
 		<> PUSH stack 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
 script                                                             |                                                             stack 
 -------------------------------------------------------------------+-------------------------------------------------------------------
@@ -533,7 +533,7 @@ OP_EQUALVERIFY                                                     |   6c60f404f
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   |   6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
 OP_CHECKSIG                                                        | 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0...
 #0004 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333
-btcdeb> 
+aixdeb> 
 		<> POP  stack
 		<> POP  stack
 		<> PUSH stack 01
@@ -543,14 +543,14 @@ script                                                             |            
 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10   | 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0...
 OP_CHECKSIG                                                        | 
 #0005 OP_EQUALVERIFY
-btcdeb> 
+aixdeb> 
 		<> PUSH stack 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10
 script                                                             |                                                             stack 
 -------------------------------------------------------------------+-------------------------------------------------------------------
 OP_CHECKSIG                                                        |   4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10
                                                                    | 000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0...
 #0006 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10
-btcdeb> 
+aixdeb> 
 EvalChecksig() sigversion=3
 Eval Checksig Tapscript
 - sig must not be empty: ok
@@ -567,13 +567,13 @@ SignatureHashSchnorr(in_pos=0, hash_type=00)
 - schnorr signature verification ***FAILED***
 - schnorr sig check failed
 error: Invalid Schnorr signature
-btcdeb>
+aixdeb>
 ```
 
 OK. The sighash is `91ba37295ca0850de315113a9adac131e34266a02e56f73970c96c60f5db1ca9`. We can sign it, since we have Bob's privkey `81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9`. Remember; sighash is a hash. We need to reverse it below.
 
 ```Bash
-btcdeb> tf sign_schnorr reverse(91ba37295ca0850de315113a9adac131e34266a02e56f73970c96c60f5db1ca9) 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9
+aixdeb> tf sign_schnorr reverse(91ba37295ca0850de315113a9adac131e34266a02e56f73970c96c60f5db1ca9) 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9
 b9e600c70ed8f4b934300077d49f5b6cbd3f4c9981a2a55ce2f7ef92758e1244b1b306d73227fa478012e0986502b729973594bb741915dcec5bae086b89a7cd
 ```
 
@@ -583,11 +583,11 @@ Now let's put the real signature in and try again.
 41 c1 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9 00000000
 
 ```Bash
-$ btcdeb --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 04 40 b9e600c70ed8f4b934300077d49f5b6cbd3f4c9981a2a55ce2f7ef92758e1244b1b306d73227fa478012e0986502b729973594bb741915dcec5bae086b89a7cd 20 107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f 45 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
+$ aixdeb --txin=$txin --tx='020000000001 015ad21d61d78dc29dd7a243d3e07d4b4a4652ae47f12d09d84f23d15aa4283d300000000000ffffffff012823000000000000160014976a249d6f98141981dc54c536fe19ec92b9975b 04 40 b9e600c70ed8f4b934300077d49f5b6cbd3f4c9981a2a55ce2f7ef92758e1244b1b306d73227fa478012e0986502b729973594bb741915dcec5bae086b89a7cd 20 107661134f21fc7c02223d50ab9eb3600bc3ffc3712423a1e47bb1f9a9dbf55f 45 a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac
 41 c1 5bf08d58a430f8c222bffaf9127249c5cdff70a2d68b2b45637eb662b6b88eb5 c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9 00000000'
 [...]
 #0006 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10
-btcdeb> 
+aixdeb> 
 EvalChecksig() sigversion=3
 Eval Checksig Tapscript
 - sig must not be empty: ok
@@ -656,4 +656,4 @@ $ bcli getrawtransaction 275f90dcfc8b6c81ea54ee6e7648b3f628ee411ef11d1fdaf9c0074
 }
 ```
 
-And we're done! Hope it was helpful. Please submit pull requests or issues with improvements to this document and/or btcdeb.
+And we're done! Hope it was helpful. Please submit pull requests or issues with improvements to this document and/or aixdeb.

@@ -324,7 +324,7 @@ void Value::do_pubkey_to_xpubkey() {
     if (!secp256k1_xonly_pubkey_from_pubkey(secp256k1_context_sign, &xpubkey, &pk_parity, &pk)) {
         abort("failed to convert regular pubkey into x-only pubkey");
     }
-    btc_logf("(pk_parity = %d)\n", pk_parity);
+    aix_logf("(pk_parity = %d)\n", pk_parity);
     data.resize(32);
     if (!secp256k1_xonly_pubkey_serialize(secp256k1_context_sign, data.data(), &xpubkey)) {
         abort("failed to serialize x-only pubkey");
@@ -641,7 +641,7 @@ void GetRandBytes(unsigned char* buf, int num)
     // TODO: Make this more cross platform
     FILE* f = fopen("/dev/urandom", "rb");
     if (!f) {
-        fprintf(stderr, "unable to open /dev/urandom for GetRandBytes(): sorry! btcdeb does not currently work on your operating system for signature signing\n");
+        fprintf(stderr, "unable to open /dev/urandom for GetRandBytes(): sorry! aixdeb does not currently work on your operating system for signature signing\n");
         exit(1);
     }
     if (fread(buf, 1, num, f) != num) {

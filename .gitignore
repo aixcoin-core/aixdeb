@@ -56,7 +56,7 @@ Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache
-btcc
+aixc
 build-aux/depcomp
 config.log
 config.status
@@ -67,8 +67,8 @@ config/stamp-h1
 configure
 .dirstamp
 libtool
-.btcdeb_history
-btcdeb
+.aixdeb_history
+aixdeb
 merklebranch
 mastify
 
@@ -98,6 +98,6 @@ src/config/aixcoin-config.h.in
 src/config/stamp-h1
 share/setup.nsi
 share/qt/Info.plist
-test-btcdeb
+test-aixdeb
 tap
 approach

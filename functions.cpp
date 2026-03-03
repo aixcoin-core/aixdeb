@@ -226,7 +226,7 @@ int fn_vfexec(const char*) {
     return print_bool_stack(env->vfExec);
 }
 
-typedef int (*btcdeb_tfun) (Value&&);
+typedef int (*aixdeb_tfun) (Value&&);
 
 int _e_echo(Value&& pv)       { pv.println(); return 0; }
 int _e_hex(Value&& pv)        { printf("%s\n", pv.hex_str().c_str()); return 0; }
@@ -272,7 +272,7 @@ struct tf_t {
     const char* name;
     const char* inl; // when used in fn() form
     const char* help;
-    btcdeb_tfun fun;
+    aixdeb_tfun fun;
 };
 
 static const tf_t tfs[] = {

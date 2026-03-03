@@ -1,4 +1,4 @@
-# Documentation for btcdeb
+# Documentation for aixdeb
 
 ## Specific documentation
 
@@ -6,4 +6,4 @@ See [mock-values.md](mock-values.md) for information on how to use mock signatur
 
 ## Patch files
 
-File starting with `patch-aixcoin-core-` can be used to patch a sub-set of the Aixcoin Core code base into an instance of btcdeb. For any release of btcdeb, the relevant files should be an exact match of the release version of btcdeb, or somthing is suspicious. (You need to ensure the patch itself is clean as well, of course.)
+File starting with `patch-aixcoin-core-` can be used to patch a sub-set of the Aixcoin Core code base into an instance of aixdeb. For any release of aixdeb, the relevant files should be an exact match of the release version of aixdeb, or somthing is suspicious. (You need to ensure the patch itself is clean as well, of course.)

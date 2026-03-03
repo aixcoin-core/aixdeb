@@ -8,14 +8,14 @@ define(_CLIENT_VERSION_IS_RELEASE, false)
 define(_COPYRIGHT_YEAR, 2023)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Aixcoin Core]])
-AC_INIT([Aixcoin Debugger],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/aixcoin-core/btcdeb/issues],[btcdeb],[https://twitter.com/kallewoof])
-AC_CONFIG_SRCDIR([btcdeb.cpp])
+AC_INIT([Aixcoin Debugger],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/aixcoin-core/aixdeb/issues],[aixdeb],[https://twitter.com/kallewoof])
+AC_CONFIG_SRCDIR([aixdeb.cpp])
 AC_CONFIG_HEADERS([config/aixcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
-BTCDEB_NAME=btcdeb
-BTCC_NAME=btcc
+AIXDEB_NAME=aixdeb
+AIXC_NAME=aixc
 
 dnl Unless the user specified ARFLAGS, force it to be cr
 AC_ARG_VAR(ARFLAGS, [Flags for the archiver, defaults to <cr> if not set])
@@ -452,7 +452,7 @@ echo "  dangerous     = $enable_dangerous"
 if test x$enable_dangerous != xno; then
   echo "    *NOTE:* If someone gave you a modified version of this code, and you passed in a private key"
   echo "            with aixcoin in it, they could easily send that key to themselves and steal from you."
-  echo "            Make sure you got this from https://github.com/aixcoin-core/btcdeb or from some other"
+  echo "            Make sure you got this from https://github.com/aixcoin-core/aixdeb or from some other"
   echo "            source that you trust. You should preferably also verify the source code."
 fi
 echo "  target os     = $TARGET_OS"

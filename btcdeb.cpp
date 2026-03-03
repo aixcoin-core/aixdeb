@@ -17,8 +17,8 @@
 #include <debugger/version.h>
 
 bool quiet = false;
-bool pipe_in = false;  // xxx | btcdeb
-bool pipe_out = false; // btcdeb xxx > file
+bool pipe_in = false;  // xxx | aixdeb
+bool pipe_out = false; // aixdeb xxx > file
 bool verbose = false;
 
 struct script_verify_flag {
@@ -112,7 +112,7 @@ int main(int argc, char* const* argv)
 {
     pipe_in = !isatty(fileno(stdin)) || std::getenv("DEBUG_SET_PIPE_IN");
     pipe_out = !isatty(fileno(stdout)) || std::getenv("DEBUG_SET_PIPE_OUT");
-    if (pipe_in || pipe_out) btc_logf = btc_logf_dummy;
+    if (pipe_in || pipe_out) aix_logf = aix_logf_dummy;
 
     cliargs ca;
     ca.add_option("help", 'h', no_arg);
@@ -131,7 +131,7 @@ int main(int argc, char* const* argv)
     ca.parse(argc, argv);
     quiet = ca.m.count('q') || pipe_in || pipe_out;
 
-    btcdeb_verbose = verbose = ca.m.count('v');
+    aixdeb_verbose = verbose = ca.m.count('v');
     if (quiet && verbose) {
         fprintf(stderr, "You cannot both require silence and verbosity.\n");
         exit(1);
@@ -143,42 +143,42 @@ int main(int argc, char* const* argv)
         fprintf(stderr, "If executed with a --dataset, the --txin and --tx values are prepopulated with values from the given dataset; though this may be overridden using subsequent --tx/--txin= statements. To see available datasets, type %s --dataset or %s -X\n", argv[0], argv[0]);
         fprintf(stderr, "To debug transaction signatures, you need to either provide the transaction hex (the WHOLE hex, not just the txid) "
             "as well as (SegWit only) every amount for the inputs, or provide (one or more) signature:pubkey pairs using --pretend-valid\n");
-        fprintf(stderr, "E.g. if a SegWit transaction abc123... has 2 inputs of 0.1 btc and 0.002 btc, you would do tx=0.1,0.002:abc123...\n");
+        fprintf(stderr, "E.g. if a SegWit transaction abc123... has 2 inputs of 0.1 aix and 0.002 aix, you would do tx=0.1,0.002:abc123...\n");
         fprintf(stderr, "You do not need the amounts for non-SegWit transactions\n");
-        fprintf(stderr, "By providing a txin as well as a tx and no script or stack, btcdeb will attempt to set up a debug session for the verification of the given input by pulling the appropriate values out of the respective transactions. you do not need amounts for --tx in this case\n");
+        fprintf(stderr, "By providing a txin as well as a tx and no script or stack, aixdeb will attempt to set up a debug session for the verification of the given input by pulling the appropriate values out of the respective transactions. you do not need amounts for --tx in this case\n");
         fprintf(stderr, "The --allow-disabled-opcodes flag enables experimental support for OP_CAT, OP_2MUL, etc (disabled in Aixcoin)\n");
         fprintf(stderr, "You can modify verification flags using the --modify-flags command. separate flags using comma (,). prefix with + to enable, - to disable. e.g. --modify-flags=\"-NULLDUMMY,-MINIMALIF\"\n");
         fprintf(stderr, "You can set the environment variables DEBUG_SIGHASH, DEBUG_SIGNING, and DEBUG_SEGWIT to increase verbosity for the respective areas.\n");
         fprintf(stderr, "The standard (enabled by default) flags can be reviewed by typing %s --default-flags or %s -d", argv[0], argv[0]);
-        fprintf(stderr, "The --verbose flag will turn btcdeb into a helpful hintful chatter-box in various situations.\n");
+        fprintf(stderr, "The --verbose flag will turn aixdeb into a helpful hintful chatter-box in various situations.\n");
         return 0;
     } else if (ca.m.count('d')) {
         printf("The standard (enabled by default) flags are:\n・ %s\n", svf_string(STANDARD_SCRIPT_VERIFY_FLAGS, "\n・ ").c_str());
         return 0;
     } else if (ca.m.count('V')) {
-        printf("btcdeb (\"The Aixcoin Script Debugger\") " VERSION() "\n");
+        printf("aixdeb (\"The Aixcoin Script Debugger\") " VERSION() "\n");
         return 0;
     } else if (ca.m.count('X')) {
         process_datasets(ca.m, verbose);
     } else if (!quiet) {
-        printf("btcdeb " VERSION() " -- type `%s -h` for start up options\n", argv[0]);
+        printf("aixdeb " VERSION() " -- type `%s -h` for start up options\n", argv[0]);
     }
 
     if (!pipe_in) {
         std::set<std::string> debug_set;
         setup_debug_set(ca.m['D'], debug_set);
         // temporarily defaulting most to ON
-        if (get_debug_flag("sighash", debug_set)) btc_sighash_logf = btc_logf_stderr;
-        if (get_debug_flag("signing", debug_set, true)) btc_sign_logf = btc_logf_stderr;
-        if (get_debug_flag("segwit", debug_set, true)) btc_segwit_logf = btc_logf_stderr;
-        if (get_debug_flag("taproot", debug_set, true)) btc_taproot_logf = btc_logf_stderr;
-        btc_logf("LOG:");
-        if (btc_enabled(btc_sighash_logf)) btc_logf(" sighash");
-        if (btc_enabled(btc_sign_logf)) btc_logf(" signing");
-        if (btc_enabled(btc_segwit_logf)) btc_logf(" segwit");
-        if (btc_enabled(btc_taproot_logf)) btc_logf(" taproot");
-        btc_logf("\n");
-        btc_logf("notice: btcdeb has gotten quieter; use --verbose if necessary (this message is temporary)\n");
+        if (get_debug_flag("sighash", debug_set)) aix_sighash_logf = aix_logf_stderr;
+        if (get_debug_flag("signing", debug_set, true)) aix_sign_logf = aix_logf_stderr;
+        if (get_debug_flag("segwit", debug_set, true)) aix_segwit_logf = aix_logf_stderr;
+        if (get_debug_flag("taproot", debug_set, true)) aix_taproot_logf = aix_logf_stderr;
+        aix_logf("LOG:");
+        if (aix_enabled(aix_sighash_logf)) aix_logf(" sighash");
+        if (aix_enabled(aix_sign_logf)) aix_logf(" signing");
+        if (aix_enabled(aix_segwit_logf)) aix_logf(" segwit");
+        if (aix_enabled(aix_taproot_logf)) aix_logf(" taproot");
+        aix_logf("\n");
+        aix_logf("notice: aixdeb has gotten quieter; use --verbose if necessary (this message is temporary)\n");
     }
 
     unsigned int flags = STANDARD_SCRIPT_VERIFY_FLAGS;
@@ -245,7 +245,7 @@ int main(int argc, char* const* argv)
     CScript script;
     if (script_str) {
         if (instance.parse_script(script_str)) {
-            if (verbose) btc_logf("valid script\n");
+            if (verbose) aix_logf("valid script\n");
         } else {
             fprintf(stderr, "invalid script\n");
             return 1;
@@ -334,11 +334,11 @@ int main(int argc, char* const* argv)
     }
 
     if (instance.has_preamble) {
-        if (verbose) btc_logf(
+        if (verbose) aix_logf(
             "*** note: there is a for-clarity preamble\n\n"
 
-            "This is a virtual script that btcdeb generates and presents to you so you can step through the validation process one step at a time. The input is simply the redeem script hash, whereas btcdeb presents it as a OP_DUP, OP_HASH160, <that hash>, OP_EQUALVERIFY script.\n"
-        ); else if (!quiet) btc_logf("note: there is a for-clarity preamble (use --verbose for details)\n");
+            "This is a virtual script that aixdeb generates and presents to you so you can step through the validation process one step at a time. The input is simply the redeem script hash, whereas aixdeb presents it as a OP_DUP, OP_HASH160, <that hash>, OP_EQUALVERIFY script.\n"
+        ); else if (!quiet) aix_logf("note: there is a for-clarity preamble (use --verbose for details)\n");
     }
 
     if (pipe_in || pipe_out) {
@@ -351,7 +351,7 @@ int main(int argc, char* const* argv)
         print_stack(env->stack, true);
         return 0;
     } else {
-        kerl_set_history_file(".btcdeb_history");
+        kerl_set_history_file(".aixdeb_history");
         kerl_set_repeat_on_empty(true);
         kerl_set_enable_sensitivity();
         kerl_set_comment_char('#');
@@ -366,12 +366,12 @@ int main(int argc, char* const* argv)
         kerl_set_completor("tf", compl_tf, false);
         kerl_register("print", fn_print, "Print script.");
         kerl_register_help("help");
-        if (!quiet) btc_logf("%d op script loaded. type `help` for usage information\n", count);
+        if (!quiet) aix_logf("%d op script loaded. type `help` for usage information\n", count);
         print_dualstack();
         if (env->curr_op_seq < count) {
             printf("%s\n", script_lines[env->curr_op_seq]);
         }
-        kerl_run("btcdeb> ");
+        kerl_run("aixdeb> ");
     }
 }
 
